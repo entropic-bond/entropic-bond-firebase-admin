@@ -1,0 +1,69 @@
+{
+  "name": "@entropic-bond/firebase-admin",
+  "version": "1.0.0",
+  "publishConfig": {
+    "access": "public",
+    "branches": [
+      "master"
+    ]
+  },
+  "release": {
+    "plugins": [
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      "@semantic-release/npm",
+      "@semantic-release/git",
+      "@semantic-release/github"
+    ]
+  },
+  "description": "Firebase Admin plugins for Entropic Bond",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "test": "npm run install-functions-dependencies && firebase emulators:exec --project demo-test 'jest --forceExit'",
+    "build": "npm run build-cjs",
+    "prepare": "npm run build",
+    "build-ts": "cp -r ./src/ ./lib",
+    "build-cjs": "tsc -p tsconfig-cjs.json",
+    "emulators": "firebase emulators:start --project demo-test",
+    "install-functions-dependencies": "cd functions && npm ci"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/entropic-bond/entropic-bond-firebase-admin-admin.git"
+  },
+  "keywords": [
+    "firebase",
+    "entropic bond"
+  ],
+  "author": "Josep Seto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/entropic-bond/entropic-bond-firebase-admin/issues"
+  },
+  "homepage": "https://github.com/entropic-bond/entropic-bond-firebase-admin#readme",
+  "devDependencies": {
+    "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@types/jest": "^28.1.7",
+    "@types/node-fetch": "^3.0.3",
+    "git-branch-is": "^4.0.0",
+    "husky": "^8.0.1",
+    "jest": "^28.1.3",
+    "node-fetch": "^2.6.1",
+    "semantic-release": "^19.0.3",
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.7.4"
+  },
+  "dependencies": {
+    "entropic-bond": "^1.29.1"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "if git-branch-is master; then npm test; fi"
+    }
+  }
+}
