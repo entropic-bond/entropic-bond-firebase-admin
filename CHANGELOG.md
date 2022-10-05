@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.1...v1.1.2) (2022-10-05)
+
+
+### Bug Fixes
+
+* error code ([df5a56a](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/df5a56a5447d9b3c22a3df408f65826ba6e7628f))
+
 ## [1.1.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.0...v1.1.1) (2022-10-05)
 
 
