@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.0...v1.1.1) (2022-10-05)
+
+
+### Bug Fixes
+
+* getUser throws when user not found instead ([28ff79e](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/28ff79e1f4538113335d5276c652888ccaa91ce0))
+
 # [1.1.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.0.0...v1.1.0) (2022-10-02)
 
 
