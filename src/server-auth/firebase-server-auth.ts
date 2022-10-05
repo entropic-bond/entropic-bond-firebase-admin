@@ -10,7 +10,8 @@ export class FirebaseServerAuth extends ServerAuthService {
 				await FirebaseAdminHelper.instance.auth().getUser( userId )
 			)
 		} catch ( error ) {
-			if ( error === 'auth/user-not-found' ) return undefined
+			console.log( error )
+			if ( error.code === 'auth/user-not-found' ) return undefined
 			else throw new Error( error )
 		}
 	}
