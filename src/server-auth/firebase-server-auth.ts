@@ -5,9 +5,14 @@ import { FirebaseAdminHelper } from '../firebase-admin-helper'
 export class FirebaseServerAuth extends ServerAuthService {
 
 	async getUser( userId: string ): Promise<UserCredentials> {
-		return this.convertToUserCredentials(
-			await FirebaseAdminHelper.instance.auth().getUser( userId )
-		)
+		try {
+			return this.convertToUserCredentials(
+				await FirebaseAdminHelper.instance.auth().getUser( userId )
+			)
+		} catch ( error ) {
+			if ( error === 'auth/user-not-found' ) return undefined
+			else throw new Error( error )
+		}
 	}
 
 	setCustomCredentials( userId: string, customCredentials: CustomCredentials ): Promise<void> {
