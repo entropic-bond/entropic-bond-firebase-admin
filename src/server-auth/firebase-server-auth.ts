@@ -4,7 +4,7 @@ import { FirebaseAdminHelper } from '../firebase-admin-helper'
 
 export class FirebaseServerAuth extends ServerAuthService {
 
-	async getUser( userId: string ): Promise<UserCredentials> {
+	async getUser<T extends {}>( userId: string ): Promise<UserCredentials<T>> {
 		try {
 			return this.convertToUserCredentials(
 				await FirebaseAdminHelper.instance.auth().getUser( userId )
@@ -20,13 +20,13 @@ export class FirebaseServerAuth extends ServerAuthService {
 		return FirebaseAdminHelper.instance.auth().setCustomUserClaims( userId, customCredentials )
 	}
 
-	async updateUser( userId: string, credentials: UserCredentials ): Promise<UserCredentials> {
+	async updateUser<T extends {}>( userId: string, credentials: UserCredentials<T> ): Promise<UserCredentials<T>> {
 		return this.convertToUserCredentials(
 			await FirebaseAdminHelper.instance.auth().updateUser( userId, credentials )
 		)
 	}
 
-	private convertToUserCredentials( userData: UserRecord ): UserCredentials {
+	private convertToUserCredentials<T extends {}>( userData: UserRecord ): UserCredentials<T> {
 		return {
 			id: userData.uid,
 			email: userData.email,
@@ -36,7 +36,7 @@ export class FirebaseServerAuth extends ServerAuthService {
 			name: userData.displayName,
 			phoneNumber: userData.phoneNumber,
 			pictureUrl: userData.photoURL,
-			customData: userData.customClaims
+			customData: userData.customClaims as T
 		}
 	}
 }
