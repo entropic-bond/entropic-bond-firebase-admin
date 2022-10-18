@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.3...v1.1.4) (2022-10-18)
+
+
+### Bug Fixes
+
+* implement deleteUser ([b9e64fd](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/b9e64fd7e5feb4b4edb82802e2f9ea6438c0909c))
+
 ## [1.1.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.2...v1.1.3) (2022-10-12)
 
 
