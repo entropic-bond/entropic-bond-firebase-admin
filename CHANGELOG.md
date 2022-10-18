@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.2...v1.1.3) (2022-10-12)
+
+
+### Bug Fixes
+
+* missed generics for custom claims ([163088c](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/163088c7ab3f32f0d26bfc447a6d679b91a7f5ab))
+
 ## [1.1.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.1...v1.1.2) (2022-10-05)
 
 
