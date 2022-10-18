@@ -2,7 +2,7 @@ import { ServerAuth } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { FirebaseServerAuth } from './firebase-server-auth'
 
-describe.skip( 'Firebase Server Auth', ()=>{
+describe( 'Firebase Server Auth', ()=>{
 	FirebaseAdminHelper.setFirebaseConfig({
 		projectId: "demo-test",
 	})

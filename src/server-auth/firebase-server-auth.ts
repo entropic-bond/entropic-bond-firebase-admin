@@ -26,6 +26,10 @@ export class FirebaseServerAuth extends ServerAuthService {
 		)
 	}
 
+	deleteUser( userId: string ): Promise<void> {
+		return FirebaseAdminHelper.instance.auth().deleteUser( userId )
+	}
+
 	private convertToUserCredentials<T extends {}>( userData: UserRecord ): UserCredentials<T> {
 		return {
 			id: userData.uid,
