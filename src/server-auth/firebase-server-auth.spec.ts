@@ -11,10 +11,18 @@ describe( 'Firebase Server Auth', ()=>{
 		ServerAuth.useServerAuthService( new FirebaseServerAuth() )
 	})
 
-	it( 'should not throw if user not found', ( done )=>{
+	it( 'should not throw if user not found', async ()=>{
 		expect.assertions( 1 )
-		expect( 
-			()=> ServerAuth.instance.getUser( 'non-existing-user-id' ).finally( done ) 
-		).not.toThrow()
+		await expect( 
+			ServerAuth.instance.getUser( 'non-existing-user-id' )
+		).resolves.toBeUndefined()
 	})
+
+	it( 'should not throw if user not found in deleteUser', async ()=>{
+		expect.assertions( 1 )
+		await expect( 
+			ServerAuth.instance.deleteUser( 'non-existing-user-id' )
+		).resolves.toBeUndefined()
+	})
+
 })

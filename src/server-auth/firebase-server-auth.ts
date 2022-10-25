@@ -10,7 +10,6 @@ export class FirebaseServerAuth extends ServerAuthService {
 				await FirebaseAdminHelper.instance.auth().getUser( userId )
 			)
 		} catch ( error ) {
-			console.log( error )
 			if ( error.code === 'auth/user-not-found' ) return undefined
 			else throw new Error( error )
 		}
@@ -26,8 +25,16 @@ export class FirebaseServerAuth extends ServerAuthService {
 		)
 	}
 
-	deleteUser( userId: string ): Promise<void> {
-		return FirebaseAdminHelper.instance.auth().deleteUser( userId )
+	async deleteUser( userId: string ): Promise<void> {
+		// const authUser = await this.getUser( userId )
+		// if ( authUser ) {
+		try {
+			await FirebaseAdminHelper.instance.auth().deleteUser( userId )
+		}
+		catch ( error ) {
+			if ( error.code === 'auth/user-not-found' ) return undefined
+			else throw new Error( error )
+		}
 	}
 
 	private convertToUserCredentials<T extends {}>( userData: UserRecord ): UserCredentials<T> {
