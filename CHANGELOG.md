@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.4...v1.1.5) (2022-10-25)
+
+
+### Bug Fixes
+
+* deleteUser does not throw if userId doesn't exists ([85709cc](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/85709cca45a205254ad848bc2510b27e785ce8ba))
+
 ## [1.1.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.3...v1.1.4) (2022-10-18)
 
 
