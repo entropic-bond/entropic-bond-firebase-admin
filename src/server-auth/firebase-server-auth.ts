@@ -26,8 +26,6 @@ export class FirebaseServerAuth extends ServerAuthService {
 	}
 
 	async deleteUser( userId: string ): Promise<void> {
-		// const authUser = await this.getUser( userId )
-		// if ( authUser ) {
 		try {
 			await FirebaseAdminHelper.instance.auth().deleteUser( userId )
 		}
