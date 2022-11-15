@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.5...v1.1.6) (2022-11-15)
+
+
+### Bug Fixes
+
+* type setCustomCredentials ([6d96d1f](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/6d96d1ff09a77a81b4815966f97b64b8c368aec0))
+
 ## [1.1.5](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.4...v1.1.5) (2022-10-25)
 
 
