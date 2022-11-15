@@ -15,7 +15,7 @@ export class FirebaseServerAuth extends ServerAuthService {
 		}
 	}
 
-	setCustomCredentials( userId: string, customCredentials: CustomCredentials ): Promise<void> {
+	setCustomCredentials<T extends CustomCredentials>( userId: string, customCredentials: T ): Promise<void> {
 		return FirebaseAdminHelper.instance.auth().setCustomUserClaims( userId, customCredentials )
 	}
 
