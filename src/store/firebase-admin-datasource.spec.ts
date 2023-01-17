@@ -189,6 +189,11 @@ describe( 'Firestore Model', ()=>{
 
 			expect( users[0].id ).toEqual( 'user2' )
 		})
+
+		it( 'should count documents in collection', async ()=>{
+			expect(	await model.find().count() ).toBe( 6 )
+		})
+		
 	})
 
 	describe( 'Derived classes should fit on parent collection', ()=>{

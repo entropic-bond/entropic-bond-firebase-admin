@@ -34,25 +34,17 @@ export class FirebaseAdminDatasource extends DataSource {
 	}
 
 	find( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise< DocumentObject[] > {
-		const db = FirebaseAdminHelper.instance.firestore()
-
-		let query = DataSource.toPropertyPathOperations( queryObject.operations as any ).reduce( 
-			( query, operation ) =>	query.where( operation.property, operation.operator, operation.value ),
-		  db.collection( collectionName ).offset( 0 )
-		)
-
-		if ( queryObject.sort ) {
-			query = query.orderBy( queryObject.sort.propertyName, queryObject.sort.order ) 
-		}
-
-		if ( queryObject.limit ) {
-			this._lastLimit = queryObject.limit
-			query = query.limit( queryObject.limit )
-		}
+		const query = this.queryObjectToFirebaseQuery( queryObject, collectionName )
 
 		this._lastQuery = query
-
 		return this.getFromQuery( query )
+	}
+
+	async count( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise<number> {
+		const query = this.queryObjectToFirebaseQuery( queryObject, collectionName )
+		const snapShot = await query.count().get()
+
+		return snapShot.data().count
 	}
 
 	delete( id: string, collectionName: string ): Promise< void > {
@@ -75,13 +67,33 @@ export class FirebaseAdminDatasource extends DataSource {
 	// prev( limit?: number ): Promise< DocumentObject[] > {
 	// }
 
-	private getFromQuery( query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> ) {
+	private getFromQuery( query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> ): Promise<DocumentObject[]> {
 		return new Promise< DocumentObject[] >( async resolve => {
 			const doc = await query.get()
 			this._lastDocRetrieved = doc.docs[ doc.docs.length-1 ]
 
 			resolve( doc.docs.map( doc => doc.data() ) ) 
 		})
+	}
+
+	private queryObjectToFirebaseQuery( queryObject: QueryObject<DocumentObject>, collectionName: string ): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
+		const db = FirebaseAdminHelper.instance.firestore()
+
+		let query = DataSource.toPropertyPathOperations( queryObject.operations as any ).reduce( 
+			( query, operation ) =>	query.where( operation.property, operation.operator, operation.value ),
+		  db.collection( collectionName ).offset( 0 )
+		)
+
+		if ( queryObject.sort ) {
+			query = query.orderBy( queryObject.sort.propertyName, queryObject.sort.order ) 
+		}
+
+		if ( queryObject.limit ) {
+			this._lastLimit = queryObject.limit
+			query = query.limit( queryObject.limit )
+		}
+
+		return query
 	}
 
 	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
