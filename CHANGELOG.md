@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.6...v1.2.0) (2023-01-18)
+
+
+### Bug Fixes
+
+* npm update ([b93cb5e](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/b93cb5e3fb551005a9cc2a46df95b0003c66e958))
+
+
+### Features
+
+* count documents in collection ([58e1a4e](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/58e1a4edc56d60a32e38d05b35187e7c45446e1e))
+
 ## [1.1.6](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.5...v1.1.6) (2022-11-15)
 
 
