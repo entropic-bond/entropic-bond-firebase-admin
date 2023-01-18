@@ -1,3 +1,10 @@
+## [1.2.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.2.0...v1.2.1) (2023-01-18)
+
+
+### Bug Fixes
+
+* back to npm ([354e708](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/354e708318ca5cc3743946e4fc69472cdce9b0d4))
+
 # [1.2.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.1.6...v1.2.0) (2023-01-18)
 
 
