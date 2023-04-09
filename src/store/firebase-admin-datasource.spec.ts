@@ -1,20 +1,24 @@
-import fetch from 'node-fetch'
+/**
+ * @jest-environment node
+ */
+import dns from 'node:dns'
 import { Model, Persistent, Store } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
 import mockData from '../mocks/mock-data.json'
 
+dns.setDefaultResultOrder('ipv4first')
 process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:9080'
 
 async function loadTestData( model: Model<TestUser> ) {
-	const users = mockData.TestUser
-	const promises = []
-	for ( const key in users ) {
-		const user = Persistent.createInstance<TestUser>( users[ key ] )
-		promises.push( model.save( user ) )
-	}
-	await Promise.all( promises )
+	const users = Object.values( mockData.TestUser )
+	await Promise.all(
+		users.map( userObj => {
+			const user = Persistent.createInstance<TestUser>( userObj as any )
+			return model.save( user )
+		})
+	)
 }
 
 describe( 'Firestore Model', ()=>{
@@ -53,15 +57,15 @@ describe( 'Firestore Model', ()=>{
 		const user = await model.findById( testUser.id )
 
 		expect( user ).toBeInstanceOf( TestUser )
-		expect( user.id ).toEqual( testUser.id )
-		expect( user.name.firstName ).toEqual( 'testUserFirstName' )
+		expect( user?.id ).toEqual( testUser.id )
+		expect( user?.name?.firstName ).toEqual( 'testUserFirstName' )
 	})
 
 	it( 'should write a document', async ()=>{
 		await model.save( testUser )
 		const newUser = await model.findById( testUser.id )
 
-		expect( newUser.name ).toEqual({
+		expect( newUser?.name ).toEqual({
 			firstName: 'testUserFirstName',
 			lastName: 'testUserLastName'
 		})
@@ -71,7 +75,7 @@ describe( 'Firestore Model', ()=>{
 		await model.save( testUser )
 
 		const newUser = await model.findById( testUser.id )
-		expect( newUser.age ).toBe( 35 )
+		expect( newUser?.age ).toBe( 35 )
 
 		await model.delete( testUser.id )
 
@@ -95,15 +99,15 @@ describe( 'Firestore Model', ()=>{
 		await model.save( testUser )
 		const newUser = await model.findById( testUser.id )
 
-		expect( Array.isArray( newUser.skills ) ).toBeTruthy()
-		expect( newUser.skills ).toEqual( expect.arrayContaining([ 'lazy', 'dirty' ]) )
+		expect( Array.isArray( newUser?.skills ) ).toBeTruthy()
+		expect( newUser?.skills ).toEqual( expect.arrayContaining([ 'lazy', 'dirty' ]) )
 	})
 
 	it( 'should retrieve object fields', async ()=>{
 		await model.save( testUser )
 		const newUser = await model.findById( testUser.id )
 
-		expect( newUser.name ).toEqual({
+		expect( newUser?.name ).toEqual({
 			firstName: 'testUserFirstName',
 			lastName: 'testUserLastName'
 		})
@@ -140,7 +144,7 @@ describe( 'Firestore Model', ()=>{
 				.get()
 
 			expect( admins.length ).toBeGreaterThanOrEqual( 1 )
-			expect( admins[ 0 ].age ).toBeLessThan( 50 )
+			expect( admins[ 0 ]?.age ).toBeLessThan( 50 )
 		})
 
 		it( 'should query by subproperties', async ()=>{
@@ -155,7 +159,7 @@ describe( 'Firestore Model', ()=>{
 				]
 			})
 
-			expect( users[0].id ).toBe( 'user3' )
+			expect( users[0]?.id ).toBe( 'user3' )
 		})
 
 		it( 'should find by subproperties', async ()=>{
@@ -163,7 +167,7 @@ describe( 'Firestore Model', ()=>{
 				.where( 'name', '==', { firstName: 'userFirstName3' })
 				.get()
 
-			expect( users[0].id ).toBe( 'user3' )
+			expect( users[0]?.id ).toBe( 'user3' )
 		})
 		
 		it( 'should find by property path', async ()=>{
@@ -171,7 +175,7 @@ describe( 'Firestore Model', ()=>{
 				.whereDeepProp( 'name.firstName', '==', 'userFirstName3' )
 				.get()
 
-				expect( users[0].id ).toBe( 'user3' )
+				expect( users[0]?.id ).toBe( 'user3' )
 		})
 		
 		it( 'should find by superdeep property path', async ()=>{
@@ -179,7 +183,7 @@ describe( 'Firestore Model', ()=>{
 				.whereDeepProp( 'name.ancestorName.father', '==', 'user3Father')
 				.get()
 
-			expect( users[0].id ).toEqual( 'user3' )
+			expect( users[0]?.id ).toEqual( 'user3' )
 		})
 
 		it( 'should find by swallow property path', async ()=>{
@@ -187,7 +191,7 @@ describe( 'Firestore Model', ()=>{
 				.whereDeepProp( 'age', '==', 21 )
 				.get()
 
-			expect( users[0].id ).toEqual( 'user2' )
+			expect( users[0]?.id ).toEqual( 'user2' )
 		})
 
 		it( 'should count documents in collection', async ()=>{
@@ -225,8 +229,8 @@ describe( 'Firestore Model', ()=>{
 			testUser.derived = new DerivedUser()
 			testUser.derived.salary = 1350
 			testUser.manyDerived = [ new DerivedUser(), new DerivedUser() ]
-			testUser.manyDerived[ 0 ].salary = 990
-			testUser.manyDerived[ 1 ].salary = 1990
+			testUser.manyDerived[ 0 ]!.salary = 990
+			testUser.manyDerived[ 1 ]!.salary = 1990
 
 			await model.save( testUser )
 		})
@@ -235,7 +239,7 @@ describe( 'Firestore Model', ()=>{
 			const subClassModel = Store.getModel( 'SubClass' )
 			expect( subClassModel ).toBeDefined()
 
-			const newDocument = await subClassModel.findById( testUser.documentRef.id ) as SubClass
+			const newDocument = await subClassModel.findById( testUser.documentRef!.id ) as SubClass
 
 			expect( newDocument ).toBeInstanceOf( SubClass )
 			expect( newDocument.year ).toBe( 2045 )
@@ -244,24 +248,24 @@ describe( 'Firestore Model', ()=>{
 		it( 'should read a swallow document reference', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
 
-			expect( loadedUser.documentRef ).toBeInstanceOf( SubClass )
-			expect( loadedUser.documentRef.id ).toBeDefined()
-			expect( loadedUser.documentRef.year ).toBeUndefined()
+			expect( loadedUser?.documentRef ).toBeInstanceOf( SubClass )
+			expect( loadedUser?.documentRef?.id ).toBeDefined()
+			expect( loadedUser?.documentRef?.year ).toBeUndefined()
 		})
 
 		it( 'should fill data of swallow document reference', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
 
-			await Store.populate( loadedUser.documentRef )
-			expect( loadedUser.documentRef.id ).toBeDefined()
-			expect( loadedUser.documentRef.year ).toBe( 2045 )
+			await Store.populate( loadedUser!.documentRef! )
+			expect( loadedUser?.documentRef?.id ).toBeDefined()
+			expect( loadedUser?.documentRef?.year ).toBe( 2045 )
 		})
 
 
 		it( 'should save and array of references', async ()=>{
 			const subClassModel = Store.getModel( 'SubClass' )
 
-			const newDocument = await subClassModel.findById( testUser.documentRef.id ) as SubClass
+			const newDocument = await subClassModel.findById( testUser.documentRef!.id ) as SubClass
 
 			expect( newDocument ).toBeInstanceOf( SubClass )
 			expect( newDocument.year ).toBe( 2045 )
@@ -270,84 +274,84 @@ describe( 'Firestore Model', ()=>{
 		it( 'should read an array of references', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
 			
-			expect( loadedUser.manyRefs ).toHaveLength( 2 )
-			expect( loadedUser.manyRefs[0] ).toBeInstanceOf( SubClass )
-			expect( loadedUser.manyRefs[0].id ).toEqual( testUser.manyRefs[0].id )
-			expect( loadedUser.manyRefs[0].year ).toBeUndefined()
-			expect( loadedUser.manyRefs[1] ).toBeInstanceOf( SubClass )
-			expect( loadedUser.manyRefs[1].id ).toEqual( testUser.manyRefs[1].id )
-			expect( loadedUser.manyRefs[1].year ).toBeUndefined()
+			expect( loadedUser?.manyRefs ).toHaveLength( 2 )
+			expect( loadedUser?.manyRefs[0] ).toBeInstanceOf( SubClass )
+			expect( loadedUser?.manyRefs[0]?.id ).toEqual( testUser.manyRefs[0]!.id )
+			expect( loadedUser?.manyRefs[0]?.year ).toBeUndefined()
+			expect( loadedUser?.manyRefs[1] ).toBeInstanceOf( SubClass )
+			expect( loadedUser?.manyRefs[1]?.id ).toEqual( testUser.manyRefs[1]!.id )
+			expect( loadedUser?.manyRefs[1]?.year ).toBeUndefined()
 		})
 
 		it( 'should fill array of refs', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
-			await Store.populate( loadedUser.manyRefs )
+			await Store.populate( loadedUser!.manyRefs )
 
-			expect( loadedUser.manyRefs[ 0 ].year ).toBe( 2081 )
-			expect( loadedUser.manyRefs[ 1 ].year ).toBe( 2082 )
+			expect( loadedUser!.manyRefs[ 0 ]?.year ).toBe( 2081 )
+			expect( loadedUser!.manyRefs[ 1 ]?.year ).toBe( 2082 )
 		})
 
 		it( 'should save a reference when declared @persistentAt', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
 
-			expect( loadedUser.derived.id ).toEqual( testUser.derived.id )
-			expect( loadedUser.derived.salary ).toBeUndefined()
+			expect( loadedUser?.derived?.id ).toEqual( testUser.derived!.id )
+			expect( loadedUser?.derived?.salary ).toBeUndefined()
 
-			await Store.populate( loadedUser.derived )
+			await Store.populate( loadedUser!.derived! )
 
-			expect( loadedUser.derived.salary ).toBe( 1350 )
-			expect( loadedUser.derived.id ).toBe( testUser.derived.id )
+			expect( loadedUser?.derived?.salary ).toBe( 1350 )
+			expect( loadedUser?.derived?.id ).toBe( testUser.derived!.id )
 		})
 
 		it( 'should populate from special collection when declared with @persistentRefAt', async ()=>{
 			const loadedUser = await model.findById( 'user6' )
-			await Store.populate( loadedUser.derived )
+			await Store.populate( loadedUser!.derived! )
 
-			expect( loadedUser.derived.salary ).toBe( 2800 )
-			expect( loadedUser.derived.id ).toBe( 'user4' )
+			expect( loadedUser?.derived?.salary ).toBe( 2800 )
+			expect( loadedUser?.derived?.id ).toBe( 'user4' )
 		})
 		
 		it( 'should save a reference when declared @persistentAt as array', async ()=>{
 			const loadedUser = await model.findById( testUser.id )
 
-			expect( loadedUser.manyDerived[0].id ).toEqual( testUser.manyDerived[0].id )
-			expect( loadedUser.manyDerived[0].salary ).toBeUndefined()
-			expect( loadedUser.manyDerived[1].salary ).toBeUndefined()
+			expect( loadedUser?.manyDerived?.[0]?.id ).toEqual( testUser.manyDerived![0]!.id )
+			expect( loadedUser?.manyDerived?.[0]?.salary ).toBeUndefined()
+			expect( loadedUser?.manyDerived?.[1]?.salary ).toBeUndefined()
 
-			await Store.populate( loadedUser.manyDerived )
+			await Store.populate( loadedUser!.manyDerived! )
 
-			expect( loadedUser.manyDerived[0].salary ).toBe( 990 )
-			expect( loadedUser.manyDerived[0].id ).toBe( testUser.manyDerived[0].id )
-			expect( loadedUser.manyDerived[1].salary ).toBe( 1990 )
-			expect( loadedUser.manyDerived[1].id ).toBe( testUser.manyDerived[1].id )
+			expect( loadedUser?.manyDerived?.[0]?.salary ).toBe( 990 )
+			expect( loadedUser?.manyDerived?.[0]?.id ).toBe( testUser.manyDerived![0]!.id )
+			expect( loadedUser?.manyDerived?.[1]?.salary ).toBe( 1990 )
+			expect( loadedUser?.manyDerived?.[1]?.id ).toBe( testUser.manyDerived![1]!.id )
 		})
 
 		it( 'should not overwrite not filled ref in collection', async ()=>{
 			const loadedUser = await model.findById( 'user6' )
-			await model.save( loadedUser )
+			await model.save( loadedUser! )
 			const refInCollection = await model.findById<DerivedUser>( 'user4' )
 
-			expect( refInCollection.salary ).toBe( 2800 )
+			expect( refInCollection?.salary ).toBe( 2800 )
 		})
 
 		it( 'should save loaded ref with assigned new instance', async ()=>{
 			const loadedUser = await model.findById( 'user6' )
-			loadedUser.derived = new DerivedUser()
-			loadedUser.derived.salary = 345
-			await model.save( loadedUser )
+			loadedUser!.derived = new DerivedUser()
+			loadedUser!.derived.salary = 345
+			await model.save( loadedUser! )
 
-			const refInCollection = await model.findById<DerivedUser>( loadedUser.derived.id )
-			expect( refInCollection.salary ).toBe( 345 )
+			const refInCollection = await model.findById<DerivedUser>( loadedUser!.derived.id )
+			expect( refInCollection?.salary ).toBe( 345 )
 		})
 
 		it( 'should save loaded ref with modified ref data', async ()=>{
 			const loadedUser = await model.findById( 'user6' )
-			await Store.populate( loadedUser.derived )
-			loadedUser.derived.salary = 1623
-			await model.save( loadedUser )
+			await Store.populate( loadedUser!.derived! )
+			loadedUser!.derived!.salary = 1623
+			await model.save( loadedUser! )
 
 			const refInCollection = await model.findById<DerivedUser>( 'user4' )
-			expect( refInCollection.salary ).toBe( 1623 )
+			expect( refInCollection?.salary ).toBe( 1623 )
 		})
 	})
 
@@ -363,29 +367,29 @@ describe( 'Firestore Model', ()=>{
 		it( 'should sort ascending the result set', async ()=>{
 			const docs = await model.find().orderBy( 'age' ).get()
 
-			expect( docs[ 0 ].id ).toEqual( 'user2' )
-			expect( docs[ 1 ].id ).toEqual( 'user1' )
+			expect( docs[ 0 ]?.id ).toEqual( 'user2' )
+			expect( docs[ 1 ]?.id ).toEqual( 'user1' )
 		})
 
 		it( 'should sort descending the result set', async ()=>{
 			const docs = await model.find().orderBy( 'age', 'desc' ).get()
 
-			expect( docs[ 0 ].id ).toEqual( 'user3' )
-			expect( docs[ 1 ].id ).toEqual( 'user5' )
+			expect( docs[ 0 ]?.id ).toEqual( 'user3' )
+			expect( docs[ 1 ]?.id ).toEqual( 'user5' )
 		})
 
 		it( 'should sort by deep property path', async ()=>{
 			const docs = await model.find().orderByDeepProp( 'name.firstName', 'desc' ).get()
 
-			expect( docs[ 0 ].id ).toEqual( 'user6' )
-			expect( docs[ 1 ].id ).toEqual( 'user5' )
+			expect( docs[ 0 ]?.id ).toEqual( 'user6' )
+			expect( docs[ 1 ]?.id ).toEqual( 'user5' )
 		})
 
 		it( 'should sort by swallow property path', async ()=>{
 			const docs = await model.find().orderByDeepProp( 'age' ).get()
 
-			expect( docs[ 0 ].id ).toEqual( 'user2' )
-			expect( docs[ 1 ].id ).toEqual( 'user1' )
+			expect( docs[ 0 ]?.id ).toEqual( 'user2' )
+			expect( docs[ 1 ]?.id ).toEqual( 'user1' )
 		})
 
 		describe( 'Data Cursors', ()=>{
@@ -398,8 +402,8 @@ describe( 'Firestore Model', ()=>{
 				const mockDataArr = Object.values( mockData.TestUser )
 				
 				expect( docs ).toHaveLength( 2 )
-				expect( docs[0].id ).toEqual( mockDataArr[2].id )
-				expect( docs[ 0 ].id ).toEqual( 'user3' )
+				expect( docs[0]?.id ).toEqual( mockDataArr[2]!.id )
+				expect( docs[ 0 ]?.id ).toEqual( 'user3' )
 			})
 
 			it( 'should not go beyond the end of result set', async ()=>{
@@ -427,7 +431,7 @@ describe( 'Firestore Model', ()=>{
 
 			const loaded = await model.findById( subClass.id )
 
-			expect( loaded.year ).toBe( 3452 )
+			expect( loaded?.year ).toBe( 3452 )
 		})
 	})
 
