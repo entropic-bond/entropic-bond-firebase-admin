@@ -10,7 +10,7 @@ export class FirebaseAdminDatasource extends DataSource {
 			try {
 				const docSnap = db.doc( `${ collectionName }/${ id }`)
 				const retrievedObj = await docSnap.get()
-				resolve( retrievedObj.data() )
+				resolve( retrievedObj.data() as DocumentObject )
 			} 
 			catch( error ) {
 				console.log( error )
@@ -72,7 +72,7 @@ export class FirebaseAdminDatasource extends DataSource {
 			const doc = await query.get()
 			this._lastDocRetrieved = doc.docs[ doc.docs.length-1 ]
 
-			resolve( doc.docs.map( doc => doc.data() ) ) 
+			resolve( doc.docs.map( doc => doc.data() as DocumentObject ) ) 
 		})
 	}
 
