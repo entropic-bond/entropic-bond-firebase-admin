@@ -1,10 +1,14 @@
-import fetch from 'node-fetch'
+/**
+ * @jest-environment node
+ */
+import dns from 'node:dns'
 import { Model, Persistent, Store } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
 import mockData from '../mocks/mock-data.json'
 
+dns.setDefaultResultOrder('ipv4first')
 process.env['FIRESTORE_EMULATOR_HOST'] = 'localhost:9080'
 
 async function loadTestData( model: Model<TestUser> ) {
