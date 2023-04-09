@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "target": "ES2018", 
+    "target": "ES2020", 
     "module": "CommonJS", 
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -15,13 +15,13 @@
     "declaration": true,
     "experimentalDecorators": true,
     "allowJs": true,
-		// "isolatedModules": true,
-		// "strictNullChecks": true, // should be enabled progressively to end having all code base compliant with this rule
-		// "strictPropertyInitialization": true, // should be enabled progressively to end having all code base compliant with this rule
-		// "noUncheckedIndexedAccess": true, // this causes errors when accessing arrays elements without checking if they exist
-		// "noImplicitOverride": true, // this causes errors when overriding methods of base classes. Annoying for React components
-		// "forceConsistentCasingInFileNames": true,
-		// "noImplicitThis": true,
+		"isolatedModules": true,
+		"strictNullChecks": true, // should be enabled progressively to end having all code base compliant with this rule
+		"strictPropertyInitialization": true, // should be enabled progressively to end having all code base compliant with this rule
+		"noUncheckedIndexedAccess": true, // this causes errors when accessing arrays elements without checking if they exist
+		"noImplicitOverride": true, // this causes errors when overriding methods of base classes. Annoying for React components
+		"forceConsistentCasingInFileNames": true,
+		"noImplicitThis": true,
 	},
   "include": ["./src"]
 }

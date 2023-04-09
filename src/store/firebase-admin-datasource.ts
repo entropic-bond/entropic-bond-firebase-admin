@@ -24,7 +24,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		const batch = db.batch()
 
 		Object.entries( collections ).forEach(([ collectionName, collection ]) => {
-			collection.forEach( document => {
+			collection?.forEach( document => {
 					const ref = db.doc( `${ collectionName }/${ document.id }` )
 					batch.set( ref, document ) 
 			})
@@ -84,7 +84,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		  db.collection( collectionName ).offset( 0 )
 		)
 
-		if ( queryObject.sort ) {
+		if ( queryObject.sort?.propertyName ) {
 			query = query.orderBy( queryObject.sort.propertyName, queryObject.sort.order ) 
 		}
 
@@ -96,7 +96,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		return query
 	}
 
-	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>
-	private _lastLimit: number
-	private _lastDocRetrieved: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>
+	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> | undefined
+	private _lastLimit: number = 0
+	private _lastDocRetrieved: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined
 }

@@ -24,5 +24,5 @@ export class FirebaseAdminHelper {
 	}
 
 	private static _instance: FirebaseAdminHelper
-	private static _firebaseConfig: AppOptions
+	private static _firebaseConfig: AppOptions | undefined
 }
