@@ -1,3 +1,10 @@
+# [1.3.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.2.1...v1.3.0) (2023-04-09)
+
+
+### Features
+
+* strictNullChecks ([bbf2c1e](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/bbf2c1e242245a3ba8776817087c2e8e6bd5e4a6))
+
 ## [1.2.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.2.0...v1.2.1) (2023-01-18)
 
 
