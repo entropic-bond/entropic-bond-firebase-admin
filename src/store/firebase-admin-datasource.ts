@@ -1,5 +1,6 @@
 import { Collections, DataSource, DocumentObject, QueryObject } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
+import { Filter } from 'firebase-admin/firestore'
 
 export class FirebaseAdminDatasource extends DataSource {
 
@@ -79,10 +80,15 @@ export class FirebaseAdminDatasource extends DataSource {
 	private queryObjectToFirebaseQuery( queryObject: QueryObject<DocumentObject>, collectionName: string ): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
 		const db = FirebaseAdminHelper.instance.firestore()
 
-		let query = DataSource.toPropertyPathOperations( queryObject.operations as any ).reduce( 
-			( query, operation ) =>	query.where( operation.property, operation.operator, operation.value ),
-		  db.collection( collectionName ).offset( 0 )
-		)
+		const andConstraints: Filter[] = []
+		const orConstraints: Filter[] = []
+
+		DataSource.toPropertyPathOperations( queryObject.operations as any ).forEach( operation =>	{
+			if ( operation.aggregate) orConstraints.push( Filter.where( operation.property, operation.operator, operation.value ) )
+			else andConstraints.push( Filter.where( operation.property, operation.operator, operation.value ) )
+		})
+
+		let query = db.collection( collectionName ).where( Filter.or( ...orConstraints, Filter.and( ...andConstraints ) )) 
 
 		if ( queryObject.sort?.propertyName ) {
 			query = query.orderBy( queryObject.sort.propertyName, queryObject.sort.order ) 

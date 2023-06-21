@@ -200,6 +200,55 @@ describe( 'Firestore Model', ()=>{
 		
 	})
 
+	describe( 'Compound queries', ()=>{
+		it( 'should find documents using `AND` compound query', async ()=>{
+			const admins = await model.find()
+				.where( 'admin', '==', true )
+				.where( 'age', '<', 50 )
+				.get()
+
+			expect( admins ).toHaveLength( 1 )
+			expect( admins[0]?.age ).toBeLessThan( 50 )
+		})
+
+		it( 'should find using `OR` query', async ()=>{
+			const docs = await model.find().or( 'age', '==', 23 ).or( 'age', '==', 41 ).get()
+
+			expect( docs ).toHaveLength( 2 )
+			expect( docs ).toEqual( expect.arrayContaining([
+				expect.objectContaining({ id: 'user1', age: 23 }),
+				expect.objectContaining({ id: 'user5', age: 41 })
+			]))
+		})
+
+		it( 'should find combining `OR` query and `where` query', async ()=>{
+			const docs = await model.find().where( 'age', '>', 50 ).or( 'age', '==', 23 ).or( 'age', '==', 41 ).get()
+
+			expect( docs ).toHaveLength( 3 )
+			expect( docs ).toEqual( expect.arrayContaining([
+				expect.objectContaining({ id: 'user1', age: 23 }),
+				expect.objectContaining({ id: 'user5', age: 41 }),
+				expect.objectContaining({ id: 'user3', age: 56 })
+			]))
+		})
+
+		it( 'should find combining `OR` query and `where` query in a range', async ()=>{
+			const docs = await model.find().where( 'age', '<', 22 ).or( 'age', '>', 50 ).get()
+
+			expect( docs ).toHaveLength( 2 )
+			expect( docs ).toEqual( expect.arrayContaining([
+				expect.objectContaining({ id: 'user2', age: 21 }),
+				expect.objectContaining({ id: 'user3', age: 56 })
+			]))
+		})
+
+		it( 'should throw if a `where` query is used after an `or` query', ()=>{
+			expect( 
+				()=> model.find().or( 'age', '==', 23 ).where( 'age', '>', 50 )
+			).toThrow( Model.error.invalidQueryOrder )
+		})
+	})
+
 	describe( 'Derived classes should fit on parent collection', ()=>{
 
 		it( 'should save derived object in parent collection', async ()=>{
