@@ -1,4 +1,4 @@
-import { persistent, Persistent, persistentReference, persistentReferenceAt, registerPersistentClass } from 'entropic-bond'
+import { persistent, Persistent, persistentReference, persistentReferenceAt, registerPersistentClass, searchableArray } from 'entropic-bond'
 
 interface Name { 
 	firstName: string, 
@@ -88,6 +88,15 @@ export class TestUser extends Persistent {
 		return this._manyDerived
 	}
 	
+	set colleagues( value: TestUser[] ) {
+		this._colleagues = value
+	}
+	
+	get colleagues(): TestUser[] {
+		return this._colleagues
+	}
+	
+	@persistent @searchableArray private _colleagues: TestUser[] = []
 	@persistent private _name: Name | undefined
 	@persistent private _age: number | undefined
 	@persistent private _admin: boolean | undefined

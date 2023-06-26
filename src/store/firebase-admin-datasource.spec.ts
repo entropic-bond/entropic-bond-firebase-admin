@@ -249,6 +249,34 @@ describe( 'Firestore Model', ()=>{
 		})
 	})
 
+	describe( 'Searchable array property', ()=>{
+
+		it( 'should find documents using `containsAny` operator', async ()=>{
+			const colleague1 = new TestUser( 'colleague1' )
+			const colleague2 = new TestUser( 'colleague2' )
+			const docs = await model.find().where( 'colleagues', 'containsAny', [ colleague1, colleague2 ]).get()
+
+			expect( docs ).toHaveLength( 3 )
+			expect( docs ).toEqual( expect.arrayContaining([
+				expect.objectContaining({ id: 'user2' }),
+				expect.objectContaining({ id: 'user4' }),
+				expect.objectContaining({ id: 'user6' })
+			]))
+		})
+
+		it( 'should find documents using `contains` operator', async ()=>{
+			const colleague2 = new TestUser( 'colleague2' )
+			const docs = await model.find().where( 'colleagues', 'contains', colleague2 ).get()
+
+			expect( docs ).toHaveLength( 2 )
+			expect( docs ).toEqual([
+				expect.objectContaining({ id: 'user4' }),
+				expect.objectContaining({ id: 'user6' })
+			])
+		})
+
+	})
+
 	describe( 'Derived classes should fit on parent collection', ()=>{
 
 		it( 'should save derived object in parent collection', async ()=>{

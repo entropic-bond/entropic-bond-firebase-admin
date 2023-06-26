@@ -1,6 +1,6 @@
-import { Collections, DataSource, DocumentObject, QueryObject } from 'entropic-bond'
+import { Collections, DataSource, DocumentObject, QueryObject, QueryOperator } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
-import { Filter } from 'firebase-admin/firestore'
+import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 
 export class FirebaseAdminDatasource extends DataSource {
 
@@ -84,8 +84,9 @@ export class FirebaseAdminDatasource extends DataSource {
 		const orConstraints: Filter[] = []
 
 		DataSource.toPropertyPathOperations( queryObject.operations as any ).forEach( operation =>	{
-			if ( operation.aggregate) orConstraints.push( Filter.where( operation.property, operation.operator, operation.value ) )
-			else andConstraints.push( Filter.where( operation.property, operation.operator, operation.value ) )
+			const operator = this.toFirebaseOperator( operation.operator )
+			if ( operation.aggregate) orConstraints.push( Filter.where( operation.property, operator, operation.value ) )
+			else andConstraints.push( Filter.where( operation.property, operator, operation.value ) )
 		})
 
 		let query = db.collection( collectionName ).where( Filter.or( ...orConstraints, Filter.and( ...andConstraints ) )) 
@@ -100,6 +101,20 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 
 		return query
+	}
+
+	toFirebaseOperator( operator: QueryOperator ): WhereFilterOp {
+		switch( operator ) {
+			case '==': 
+			case '!=':
+			case '<':
+			case '<=':
+			case '>':
+			case '>=': return operator
+			case 'contains': return 'array-contains'
+			case 'containsAny': return 'array-contains-any'
+			default: return operator
+		}
 	}
 
 	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> | undefined
