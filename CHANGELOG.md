@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.4.0...v1.5.0) (2023-06-26)
+
+
+### Features
+
+* searchableArray decorator ([20642ed](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/20642edc75a6c866ff59cd229d8e2f8a756b35f5))
+
 # [1.4.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.3.0...v1.4.0) (2023-06-21)
 
 
