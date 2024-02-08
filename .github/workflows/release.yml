@@ -18,9 +18,9 @@ jobs:
         with:
           node-version: "20.x"
       - run: npm ci
-      - run: npm run build
       - run: npm install -g firebase-tools
       - run: npm test
+      - run: npm run build
       - run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}

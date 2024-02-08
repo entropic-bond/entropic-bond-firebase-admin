@@ -1,6 +1,20 @@
 {
   "name": "@entropic-bond/firebase-admin",
+  "type": "module",
   "version": "1.5.0",
+  "description": "Firebase Admin plugins for Entropic Bond",
+  "main": "lib/entropic-bond-firebase-admin.js",
+  "module": "lib/entropic-bond-firebase-admin.js",
+  "exports": {
+    ".": {
+      "import": "./lib/entropic-bond-firebase-admin.js",
+      "require": "./lib/entropic-bond-firebase-admin.js",
+      "types": "./lib/index.d.ts"
+    }
+  },
+  "files": [
+    "lib"
+  ],
   "publishConfig": {
     "access": "public",
     "branches": [
@@ -16,18 +30,10 @@
       "@semantic-release/github"
     ]
   },
-  "description": "Firebase Admin plugins for Entropic Bond",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "files": [
-    "lib"
-  ],
   "scripts": {
     "test": "firebase emulators:exec --project demo-test 'jest --forceExit'",
-    "build": "npm run build-cjs",
+    "build": "tsc -p tsconfig-build.json && vite build",
     "prepare": "npm run build",
-    "build-ts": "cp -r ./src/ ./lib",
-    "build-cjs": "tsc -p tsconfig-cjs.json",
     "emulators": "firebase emulators:start --project demo-test"
   },
   "repository": {
