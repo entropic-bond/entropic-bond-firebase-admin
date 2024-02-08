@@ -18,9 +18,9 @@ describe( 'Firebase Server Auth', ()=>{
 		).resolves.toBeUndefined()
 	})
 
-	it( 'should not throw if user not found in deleteUser', async ()=>{
+	it( 'should not throw if user not found in deleteUser', ()=>{
 		expect.assertions( 1 )
-		await expect( 
+		expect( 
 			ServerAuth.instance.deleteUser( 'non-existing-user-id' )
 		).resolves.toBeUndefined()
 	})

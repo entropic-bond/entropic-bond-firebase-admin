@@ -1,6 +1,6 @@
 import { ServerAuthService, UserCredentials, CustomCredentials } from 'entropic-bond'
-import { UserRecord } from 'firebase-admin/lib/auth/user-record'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
+import { UserRecord } from 'firebase-admin/auth'
 
 export class FirebaseServerAuth extends ServerAuthService {
 

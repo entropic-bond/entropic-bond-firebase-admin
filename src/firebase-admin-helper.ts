@@ -19,7 +19,7 @@ export class FirebaseAdminHelper {
 		return admin.firestore()
 	}
 
-	auth() {
+	auth(): admin.auth.Auth{
 		return admin.auth()
 	}
 
