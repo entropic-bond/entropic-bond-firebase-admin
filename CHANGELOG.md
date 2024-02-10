@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.0...v1.6.1) (2024-02-10)
+
+
+### Bug Fixes
+
+* sourcemap ([3fa77b4](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/3fa77b4752fed48472e6b5547cb43a64fedc66cf))
+
 # [1.6.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.5.0...v1.6.0) (2024-02-08)
 
 
