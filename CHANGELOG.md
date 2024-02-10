@@ -1,3 +1,15 @@
+# [1.6.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.5.0...v1.6.0) (2024-02-08)
+
+
+### Bug Fixes
+
+* remove jest and adjust filenames ([bd0729d](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/bd0729da7b7db48904531054d5125bdb9e58937a))
+
+
+### Features
+
+* esm and cjs ([f808e43](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/f808e43a7bf7a4ec03cf4154c82bf9107b8972c7))
+
 # [1.5.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.4.0...v1.5.0) (2023-06-26)
 
 
