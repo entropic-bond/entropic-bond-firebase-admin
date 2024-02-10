@@ -13,7 +13,8 @@ export default defineConfig({
 			name: 'entropic-bond-firebase-admin',
 			fileName: 'entropic-bond-firebase-admin'
 		},
-		"outDir": "lib",
+		sourcemap: true,
+		outDir: 'lib',
 	},
 	plugins: [
 		dts()
