@@ -1,3 +1,11 @@
+## [1.6.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.1...v1.6.2) (2024-02-12)
+
+
+### Bug Fixes
+
+* bundler friendly ([197c933](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/197c9334a796ce229671b384337a6cff482aa29f))
+* error ([18ef2e8](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/18ef2e895fb4e87b6f07ff48750edb77b6181fd5))
+
 ## [1.6.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.0...v1.6.1) (2024-02-10)
 
 
