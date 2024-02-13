@@ -1,3 +1,10 @@
+## [1.6.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.2...v1.6.3) (2024-02-13)
+
+
+### Bug Fixes
+
+* use firebase-admin as modules ([272e7d3](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/272e7d366a8ee6e330fe78516e61f943c7a942d2))
+
 ## [1.6.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.1...v1.6.2) (2024-02-12)
 
 
