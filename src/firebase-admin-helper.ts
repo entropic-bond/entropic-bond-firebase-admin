@@ -1,5 +1,6 @@
-import admin from 'firebase-admin'
-import { AppOptions } from 'firebase-admin/app'
+import { AppOptions, initializeApp } from 'firebase-admin/app'
+import { Auth, getAuth } from 'firebase-admin/auth'
+import { getFirestore } from 'firebase-admin/firestore'
 
 export class FirebaseAdminHelper {
 	
@@ -8,7 +9,7 @@ export class FirebaseAdminHelper {
 	}
 
 	private constructor() {
-		admin.initializeApp( FirebaseAdminHelper._firebaseConfig )
+		initializeApp( FirebaseAdminHelper._firebaseConfig )
 	}
 
 	static get instance() {
@@ -16,11 +17,11 @@ export class FirebaseAdminHelper {
 	}
 
 	firestore() {
-		return admin.firestore()
+		return getFirestore()
 	}
 
-	auth(): admin.auth.Auth{
-		return admin.auth()
+	auth(): Auth{
+		return getAuth()
 	}
 
 	private static _instance: FirebaseAdminHelper
