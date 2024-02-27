@@ -1,18 +1,18 @@
 {
   "name": "@entropic-bond/firebase-admin",
-  "type": "module",
+  "type": "commonjs",
   "version": "1.6.2",
   "description": "Firebase Admin plugins for Entropic Bond",
-  "main": "lib/entropic-bond-firebase-admin.umd.cjs",
-  "module": "lib/entropic-bond-firebase-admin.js",
+  "main": "lib/cjs/index.js",
+  "module": "lib/esm/index.js",
   "exports": {
     ".": {
-      "import": "./lib/entropic-bond-firebase-admin.js",
-      "require": "./lib/entropic-bond-firebase-admin.umd.cjs",
-      "types": "./lib/index.d.ts"
+      "import": "./lib/esm/index.js",
+      "require": "./lib/cjs/index.js",
+      "types": "./lib/esm/index.d.ts"
     }
   },
-  "types": "./lib/index.d.ts",
+  "types": "./lib/esm/index.d.ts",
   "files": [
     "lib"
   ],
@@ -33,7 +33,10 @@
   },
   "scripts": {
     "test": "firebase emulators:exec --project demo-test 'vitest'",
-    "build": "vite build",
+    "build": "npm run build-module && npm run build-cjs",
+    "build-with-vite": "tsc -p tsconfig-build.json && vite build",
+    "build-module": "tsc -p tsconfig-module.json",
+    "build-cjs": "tsc -p tsconfig-cjs.json",
     "prepare": "npm run build",
     "emulators": "firebase emulators:start --project demo-test"
   },
@@ -54,14 +57,14 @@
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@types/node": "^20.11.17",
+    "@types/node": "^20.11.20",
     "git-branch-is": "^4.0.0",
-    "husky": "^9.0.10",
+    "husky": "^9.0.11",
     "semantic-release": "^23.0.2",
     "typescript": "^5.3.3",
-    "vite": "^5.1.1",
-    "vite-plugin-dts": "^3.7.2",
-    "vitest": "^1.2.2"
+    "vite": "^5.1.4",
+    "vite-plugin-dts": "^3.7.3",
+    "vitest": "^1.3.1"
   },
   "dependencies": {
     "entropic-bond": "^1.50.4",

@@ -1,0 +1,12 @@
+{
+	"extends": "./tsconfig.json",
+	"compilerOptions": {
+		"module": "ESNext",
+    "esModuleInterop": true,
+    "moduleResolution": "Node",
+		"outDir": "lib/esm",
+		"types": [
+		]
+	},
+  "exclude": [ "**/*.test.ts", "**/*.test.tsx", "**/*.spec.ts", "**/*.spec.tsx" ]
+}
