@@ -2,9 +2,10 @@
  * @jest-environment node
  */
 import dns from 'node:dns'
-import { Model, Persistent, Store } from 'entropic-bond'
+import { CloudFunctions, DocumentChangeListernerHandler, Model, Persistent, Store } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
+import { FirebaseCloudFunctions } from '@entropic-bond/firebase'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
 import mockData from '../mocks/mock-data.json'
 
@@ -28,6 +29,8 @@ describe( 'Firestore Model', ()=>{
 	FirebaseAdminHelper.setFirebaseConfig({
 		projectId: "demo-test",
 	})
+	
+	CloudFunctions.useCloudFunctionsService( new FirebaseCloudFunctions( 'europe-west1', { emulate: true }))
 
 	beforeEach( async ()=>{
 		Store.useDataSource( new FirebaseAdminDatasource() )
@@ -507,6 +510,35 @@ describe( 'Firestore Model', ()=>{
 			expect( loaded?.year ).toBe( 3452 )
 		})
 	})
+
+	// describe( 'Data source listeners', ()=>{
+	// 	let listenerHandlers: DocumentChangeListernerHandler[]
+	// 	let onUpdated = vi.fn()
+
+	// 	beforeEach(()=>{
+	// 		listenerHandlers = Store.dataSource.installReferencePersistentPropsUpdaters( onUpdated )
+	// 	})
+
+	// 	afterEach(()=>{
+	// 		listenerHandlers.forEach( handler => handler.uninstall() )
+	// 	})
+
+	// 	it( 'should update when a document is changed', async ()=>{
+	// 		const userModel = Store.getModel<TestUser>( 'TestUser' )
+	// 		const user1 = ( await userModel.findById( 'user1' ) )!
+	// 		user1.age = 99
+	// 		user1.admin = false
+	// 		await userModel.save( user1 )
+
+	// 		// await vi.waitFor( ()=>{
+	// 		// 	if ( onUpdated.mock.calls.length == 0 ) throw 'Not updated' 
+	// 		// })
+	// 		const referenceModel = Store.getModel<UsesUserAsPersistentProp>( 'UsesUserAsPersistentProp' )
+	// 		const reference = ( await referenceModel.findById( 'usesUserAsPersistentProp1' ) )!
+	// 		expect( reference.user?.age ).toBe( 99 )
+	// 		expect( reference.user?.admin ).toBeFalsy()
+	// 	})
+	// })
 
 })
 
