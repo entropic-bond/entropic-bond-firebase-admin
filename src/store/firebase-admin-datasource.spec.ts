@@ -2,10 +2,9 @@
  * @jest-environment node
  */
 import dns from 'node:dns'
-import { CloudFunctions, DocumentChangeListernerHandler, Model, Persistent, Store } from 'entropic-bond'
+import { Model, Persistent, Store } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
-import { FirebaseCloudFunctions } from '@entropic-bond/firebase'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
 import mockData from '../mocks/mock-data.json'
 
@@ -30,8 +29,6 @@ describe( 'Firestore Model', ()=>{
 		projectId: "demo-test",
 	})
 	
-	CloudFunctions.useCloudFunctionsService( new FirebaseCloudFunctions( 'europe-west1', { emulate: true }))
-
 	beforeEach( async ()=>{
 		Store.useDataSource( new FirebaseAdminDatasource() )
 
