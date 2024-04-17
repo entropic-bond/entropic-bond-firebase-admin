@@ -1,3 +1,15 @@
+# [1.7.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.4...v1.7.0) (2024-04-17)
+
+
+### Bug Fixes
+
+* remove unwanted code ([500436c](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/500436c20ef72bef7c95eb49a8437b03cd137d1c))
+
+
+### Features
+
+* document change listeres for reference persistent props ([7d86c09](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/7d86c098b4c4bacd63bbc9d7677310c4f0bdc8fa))
+
 ## [1.6.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.3...v1.6.4) (2024-02-27)
 
 
