@@ -1,3 +1,10 @@
+## [1.6.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.3...v1.6.4) (2024-02-27)
+
+
+### Bug Fixes
+
+* build with tsc ([6565535](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/656553548600142349ffe641b4ad5c49ee68cf0b))
+
 ## [1.6.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.6.2...v1.6.3) (2024-02-13)
 
 
