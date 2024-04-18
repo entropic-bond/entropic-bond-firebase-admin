@@ -130,7 +130,8 @@ export class FirebaseAdminDatasource extends DataSource {
 		
 		return {
 			uninstall: () => {},
-			nativeHandler: handler
+			nativeHandler: handler,
+			collectionPath: collectionPath
 		}
 	}
 
