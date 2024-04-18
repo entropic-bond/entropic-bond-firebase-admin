@@ -1,4 +1,4 @@
-import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentListenerUninstaller, DocumentObject, Persistent, PersistentProperty, QueryObject, QueryOperator } from 'entropic-bond'
+import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, Persistent, PersistentProperty, QueryObject, QueryOperator } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
