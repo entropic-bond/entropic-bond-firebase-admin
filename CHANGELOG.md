@@ -1,3 +1,10 @@
+## [1.7.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.1...v1.7.2) (2024-04-18)
+
+
+### Bug Fixes
+
+* document path sufix ([7d82a94](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/7d82a9473f9c8182e6809e10db258ec93eb7bb0a))
+
 ## [1.7.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.0...v1.7.1) (2024-04-18)
 
 
