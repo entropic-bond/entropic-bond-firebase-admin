@@ -120,7 +120,7 @@ export class FirebaseAdminDatasource extends DataSource {
 
 	protected override subscribeToDocumentChangeListerner( prop: PersistentProperty, listener: DocumentChangeListerner ): DocumentChangeListernerHandler | undefined {
 		const collectionPath = Persistent.collectionPath( undefined!, prop )
-		const handler = functions.firestore.onDocumentUpdated( collectionPath, event => {
+		const handler = functions.firestore.onDocumentUpdated( collectionPath + '/{docId}', event => {
 			const snapshot = event.data
 			listener({ 
 				before: Persistent.createInstance( snapshot?.before.data() as any ).toObject(), 
