@@ -1,4 +1,4 @@
-import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, Persistent, PersistentProperty, QueryObject, QueryOperator } from 'entropic-bond'
+import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, Persistent, QueryObject, QueryOperator } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
@@ -118,20 +118,19 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 	}
 
-	protected override subscribeToDocumentChangeListerner( prop: PersistentProperty, listener: DocumentChangeListerner ): DocumentChangeListernerHandler | undefined {
-		const collectionPath = Persistent.collectionPath( undefined!, prop )
-		const handler = functions.firestore.onDocumentUpdated( collectionPath + '/{docId}', event => {
+	protected override subscribeToDocumentChangeListerner( collectionPathToListen: string, listener: DocumentChangeListerner ): DocumentChangeListernerHandler | undefined {
+		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
 			const snapshot = event.data
 			listener({ 
-				before: Persistent.createInstance( snapshot?.before.data() as any ).toObject(), 
-				after: Persistent.createInstance( snapshot?.after.data() as any ).toObject()
+				before: Persistent.createInstance( snapshot?.before.data() as any ), 
+				after: Persistent.createInstance( snapshot?.after.data() as any ),
 			})
 		})
 		
 		return {
 			uninstall: () => {},
 			nativeHandler: handler,
-			collectionPath: collectionPath
+			collectionPath: collectionPathToListen
 		}
 	}
 
