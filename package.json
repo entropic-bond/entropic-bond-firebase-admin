@@ -1,7 +1,7 @@
 {
   "name": "@entropic-bond/firebase-admin",
   "type": "commonjs",
-  "version": "1.7.2",
+  "version": "1.7.3",
   "description": "Firebase Admin plugins for Entropic Bond",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
