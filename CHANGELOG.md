@@ -1,3 +1,10 @@
+## [1.7.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.3...v1.7.4) (2024-09-17)
+
+
+### Bug Fixes
+
+* update npm ([7d90eb2](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/7d90eb270d7f96638072beb599f0bf6c625e49a1))
+
 ## [1.7.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.2...v1.7.3) (2024-04-23)
 
 
