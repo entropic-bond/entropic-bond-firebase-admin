@@ -1,11 +1,11 @@
-import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, Persistent, QueryObject, QueryOperator } from 'entropic-bond'
+import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
 
 export class FirebaseAdminDatasource extends DataSource {
 
-	findById( id: string, collectionName: string ): Promise< DocumentObject > {
+	override findById( id: string, collectionName: string ): Promise< DocumentObject > {
 		const db = FirebaseAdminHelper.instance.firestore()
 		
 		return new Promise<DocumentObject>( async resolve => {
@@ -21,7 +21,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		})
 	}
 
-	save( collections: Collections ): Promise< void > {
+	override save( collections: Collections ): Promise< void > {
 		const db = FirebaseAdminHelper.instance.firestore()
 		const batch = db.batch()
 
@@ -35,27 +35,27 @@ export class FirebaseAdminDatasource extends DataSource {
 		return batch.commit() as unknown as Promise<void>
 	}
 
-	find( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise< DocumentObject[] > {
+	override find( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise< DocumentObject[] > {
 		const query = this.queryObjectToFirebaseQuery( queryObject, collectionName )
 
 		this._lastQuery = query
 		return this.getFromQuery( query )
 	}
 
-	async count( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise<number> {
+	override async count( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise<number> {
 		const query = this.queryObjectToFirebaseQuery( queryObject, collectionName )
 		const snapShot = await query.count().get()
 
 		return snapShot.data().count
 	}
 
-	delete( id: string, collectionName: string ): Promise< void > {
+	override delete( id: string, collectionName: string ): Promise< void > {
 		const db = FirebaseAdminHelper.instance.firestore()
 
 		return db.recursiveDelete( db.doc( `${ collectionName }/${ id }` ) )
 	}
 
-	next( maxDocs?: number ): Promise< DocumentObject[] > {
+	override next( maxDocs?: number ): Promise< DocumentObject[] > {
 		if( !this._lastQuery ) throw new Error('You should perform a query prior to using method next')
 
 		this._lastLimit = maxDocs || this._lastLimit
@@ -118,12 +118,13 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 	}
 
-	protected override subscribeToDocumentChangeListerner( collectionPathToListen: string, listener: DocumentChangeListerner ): DocumentChangeListernerHandler | undefined {
+	protected override subscribeToDocumentChangeListerner( collectionPathToListen: string, listener: DocumentChangeListerner<DocumentObject> ): DocumentChangeListernerHandler | undefined {
 		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
 			const snapshot = event.data
 			listener({ 
-				before: Persistent.createInstance( snapshot?.before.data() as any ), 
-				after: Persistent.createInstance( snapshot?.after.data() as any ),
+				before: snapshot?.before.data() as DocumentObject, 
+				after: snapshot?.after.data() as DocumentObject,
+				type: 'update'
 			})
 		})
 		
@@ -133,6 +134,36 @@ export class FirebaseAdminDatasource extends DataSource {
 			collectionPath: collectionPathToListen
 		}
 	}
+	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: DocumentChangeListerner<DocumentObject> ): Unsubscriber {
+		// const queryConstraints = this.queryObjectToQueryConstraints( query as unknown as QueryObject<DocumentObject>, collectionName )
+		// return onSnapshot( queryConstraints, snapshot => {
+		// 	snapshot.docChanges().forEach( change => {
+		// 		listener({
+		// 			type: change.type === 'added'? 'create' : change.type === 'modified'? 'update' : 'delete',
+		// 			after: change.doc.data() as DocumentObject,
+		// 			before: undefined,
+		// 			params: {}
+		// 		})
+		// 	})
+		// })
+		throw new Error( 'Not implemented yet')
+	}
+
+	override onDocumentChange( documentPath: string, documentId: string, listener: DocumentChangeListerner<DocumentObject> ): Unsubscriber {
+		// const db = FirebaseHelper.instance.firestore()
+
+		// return onSnapshot( doc( db, documentPath, documentId ), snapshot => {
+		// 	listener({
+		// 		type: 'update',
+		// 		before: undefined,
+		// 		after: snapshot.data() as DocumentObject,
+		// 		params: {}
+		// 	})
+
+		// })
+		throw new Error( 'Not implemented yet')
+	}
+	
 
 	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> | undefined
 	private _lastLimit: number = 0
