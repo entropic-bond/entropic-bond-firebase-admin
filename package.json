@@ -18,13 +18,12 @@
   ],
   "publishConfig": {
     "access": "public",
-    "registry": "https://registry.npmjs.org",
+    "registry": "https://registry.npmjs.org/",
+    "tag": "latest",
+    "provenance": true,
     "branches": [
       "master"
     ]
-  },
-  "engines": {
-    "node": "22"
   },
   "release": {
     "plugins": [
