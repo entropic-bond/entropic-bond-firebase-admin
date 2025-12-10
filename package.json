@@ -22,6 +22,9 @@
       "master"
     ]
   },
+  "engines": {
+    "node": "22"
+  },
   "release": {
     "plugins": [
       "@semantic-release/release-notes-generator",
