@@ -1,3 +1,10 @@
+## [1.7.7](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.6...v1.7.7) (2025-12-17)
+
+
+### Bug Fixes
+
+* typo ([424e785](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/424e785fc063a109fb951035bffcf553c090a396))
+
 ## [1.7.6](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.5...v1.7.6) (2025-12-10)
 
 
