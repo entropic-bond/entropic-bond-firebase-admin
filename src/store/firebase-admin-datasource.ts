@@ -1,4 +1,4 @@
-import { Collections, DataSource, DocumentChangeListerner, DocumentChangeListernerHandler, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
+import { CollectionChangeListener, Collections, DataSource, DocumentChangeListener, DocumentChangeListenerHandler, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
@@ -118,7 +118,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 	}
 
-	protected override subscribeToDocumentChangeListerner( collectionPathToListen: string, listener: DocumentChangeListerner<DocumentObject> ): DocumentChangeListernerHandler | undefined {
+	protected override subscribeToDocumentChangeListener( collectionPathToListen: string, listener: DocumentChangeListener<DocumentObject> ): DocumentChangeListenerHandler | undefined {
 		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
 			const snapshot = event.data
 			listener({ 
@@ -134,7 +134,7 @@ export class FirebaseAdminDatasource extends DataSource {
 			collectionPath: collectionPathToListen
 		}
 	}
-	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: DocumentChangeListerner<DocumentObject> ): Unsubscriber {
+	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: CollectionChangeListener<DocumentObject> ): Unsubscriber {
 		// const queryConstraints = this.queryObjectToQueryConstraints( query as unknown as QueryObject<DocumentObject>, collectionName )
 		// return onSnapshot( queryConstraints, snapshot => {
 		// 	snapshot.docChanges().forEach( change => {
@@ -149,7 +149,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		throw new Error( 'Not implemented yet')
 	}
 
-	override onDocumentChange( documentPath: string, documentId: string, listener: DocumentChangeListerner<DocumentObject> ): Unsubscriber {
+	override onDocumentChange( documentPath: string, documentId: string, listener: DocumentChangeListener<DocumentObject> ): Unsubscriber {
 		// const db = FirebaseHelper.instance.firestore()
 
 		// return onSnapshot( doc( db, documentPath, documentId ), snapshot => {

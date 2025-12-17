@@ -20,6 +20,12 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin' # Recommended distribution as it is cached on runners
+
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
