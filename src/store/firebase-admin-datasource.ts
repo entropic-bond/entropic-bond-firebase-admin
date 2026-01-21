@@ -134,6 +134,7 @@ export class FirebaseAdminDatasource extends DataSource {
 			collectionPath: collectionPathToListen
 		}
 	}
+	
 	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: CollectionChangeListener<DocumentObject> ): Unsubscriber {
 		// const queryConstraints = this.queryObjectToQueryConstraints( query as unknown as QueryObject<DocumentObject>, collectionName )
 		// return onSnapshot( queryConstraints, snapshot => {
