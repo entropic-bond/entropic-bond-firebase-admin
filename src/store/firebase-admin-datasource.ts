@@ -118,21 +118,40 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 	}
 
-	protected override subscribeToDocumentChangeListener( collectionPathToListen: string, listener: DocumentChangeListener<DocumentObject> ): DocumentChangeListenerHandler | undefined {
+	protected override subscribeToDocumentChangeListener( collectionPathToListen: string, listener: DocumentChangeListener<DocumentObject> ): Promise<DocumentChangeListenerHandler | undefined> {
 		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
 			const snapshot = event.data
 			listener({ 
 				before: snapshot?.before.data() as DocumentObject, 
 				after: snapshot?.after.data() as DocumentObject,
-				type: 'update'
+				type: 'update',
+				params: event.params,
+				collectionPath: collectionPathToListen
 			})
 		})
 		
-		return {
+		return Promise.resolve({
 			uninstall: () => {},
 			nativeHandler: handler,
 			collectionPath: collectionPathToListen
-		}
+		})
+	}
+
+	protected override async collectionsMatchingTemplate( template: string ): Promise<string[]> {
+		const templateTokens = template.split( '/' )
+		if ( templateTokens.length != 3 ) throw new Error('FirebaseAdminDatasource.collectionsMatchingTemplate only supports collection and subcollection paths (max 3 tokens)')
+		const [ mainCollection, _document, subcollection ] = templateTokens
+		if ( !mainCollection || !subcollection ) throw new Error('FirebaseAdminDatasource.collectionsMatchingTemplate requires a document and subcollection')
+
+		const db = FirebaseAdminHelper.instance.firestore()
+
+		const docs = await db.collection( mainCollection ).get()
+
+		const collectionList: string[] = []
+		docs.docs.forEach(( doc ) => {
+			collectionList.push( `${ mainCollection }/${ doc.id }/${ subcollection }` )
+		})
+		return collectionList
 	}
 	
 	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: CollectionChangeListener<DocumentObject> ): Unsubscriber {

@@ -60,17 +60,17 @@
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "@types/node": "^25.0.9",
+    "@types/node": "^25.0.10",
     "git-branch-is": "^4.0.0",
     "husky": "^9.1.7",
     "semantic-release": "^25.0.2",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4",
-    "vitest": "^4.0.17"
+    "vitest": "^4.0.18"
   },
   "dependencies": {
-    "entropic-bond": "^1.55.0",
+    "entropic-bond": "^1.55.2",
     "firebase-admin": "^13.6.0",
     "firebase-functions": "7.0.2"
   },
