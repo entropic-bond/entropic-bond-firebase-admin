@@ -1,3 +1,10 @@
+## [1.7.12](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.11...v1.7.12) (2026-01-25)
+
+
+### Bug Fixes
+
+* make it module ([a726f96](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/a726f9660f2243210a8c1c515a695b81faa192d9))
+
 ## [1.7.11](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.10...v1.7.11) (2026-01-24)
 
 
