@@ -1,3 +1,10 @@
+## [1.7.11](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.10...v1.7.11) (2026-01-24)
+
+
+### Bug Fixes
+
+* implement cached props updater abstract methods ([0a0a5b1](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/0a0a5b1a1b1d37d0b532f84619a6fb8aa378c0e0))
+
 ## [1.7.10](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.9...v1.7.10) (2026-01-21)
 
 
