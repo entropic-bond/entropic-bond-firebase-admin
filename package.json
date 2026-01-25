@@ -36,10 +36,7 @@
   },
   "scripts": {
     "test": "firebase emulators:exec --project demo-test 'vitest'",
-    "build": "npm run build-module && npm run build-cjs",
-    "build-with-vite": "tsc -p tsconfig-build.json && vite build",
-    "build-module": "tsc -p tsconfig-module.json",
-    "build-cjs": "tsc -p tsconfig-cjs.json",
+    "build": "vite build",
     "prepare": "npm run build",
     "emulators": "firebase emulators:start --project demo-test --inspect-functions"
   },
@@ -70,7 +67,7 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
-    "entropic-bond": "^1.55.2",
+    "entropic-bond": "^1.55.3",
     "firebase-admin": "^13.6.0",
     "firebase-functions": "7.0.2"
   },
