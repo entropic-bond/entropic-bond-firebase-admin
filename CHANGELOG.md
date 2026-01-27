@@ -1,3 +1,10 @@
+## [1.7.14](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.13...v1.7.14) (2026-01-27)
+
+
+### Bug Fixes
+
+* update entropic-bond dependency to 1.55.4 and remove unneeded promises  Firestore ([42176ab](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/42176ab46d12e9a29d830aae61323ad7f7e7a9de))
+
 ## [1.7.13](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.12...v1.7.13) (2026-01-25)
 
 
