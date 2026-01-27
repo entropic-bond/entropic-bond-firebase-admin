@@ -1,3 +1,10 @@
+## [1.7.13](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.12...v1.7.13) (2026-01-25)
+
+
+### Bug Fixes
+
+* build with vite ([db8e533](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/db8e5333513225ff7b40a2d6a45df66c8d3a7a22))
+
 ## [1.7.12](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.11...v1.7.12) (2026-01-25)
 
 
