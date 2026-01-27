@@ -1,3 +1,10 @@
+## [1.7.16](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.15...v1.7.16) (2026-01-27)
+
+
+### Bug Fixes
+
+* better error description ([208fbf3](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/208fbf3c693f2188587942528074b339c23db2cf))
+
 ## [1.7.15](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.14...v1.7.15) (2026-01-27)
 
 
