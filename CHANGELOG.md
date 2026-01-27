@@ -1,3 +1,10 @@
+## [1.7.15](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.14...v1.7.15) (2026-01-27)
+
+
+### Bug Fixes
+
+* upgrade firbase-functions ([bbdeb0c](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/bbdeb0ceb26ba006fb83bbedb9b3b920fd978483))
+
 ## [1.7.14](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.13...v1.7.14) (2026-01-27)
 
 
