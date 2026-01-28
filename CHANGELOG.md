@@ -1,3 +1,10 @@
+## [1.7.17](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.16...v1.7.17) (2026-01-28)
+
+
+### Bug Fixes
+
+* improve error handling in FirebaseAdminDatasource ([ed5dc6e](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/ed5dc6e04c90058abd36066b60c071aa0952fa27))
+
 ## [1.7.16](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.15...v1.7.16) (2026-01-27)
 
 
