@@ -37,6 +37,7 @@
   "scripts": {
     "test": "firebase emulators:exec --project demo-test 'vitest'",
     "build": "vite build",
+    "watch": "vite build --watch",
     "prepare": "npm run build",
     "emulators": "firebase emulators:start --project demo-test --inspect-functions"
   },
