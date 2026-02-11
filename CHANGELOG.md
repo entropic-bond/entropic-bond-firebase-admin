@@ -1,3 +1,10 @@
+## [1.7.18](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.17...v1.7.18) (2026-02-11)
+
+
+### Bug Fixes
+
+* set global options in FirebaseAdminDatasource constructor ([72e4e2f](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/72e4e2f8bb0714a3fc9b183f8b820076359dd222))
+
 ## [1.7.17](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.16...v1.7.17) (2026-01-28)
 
 
