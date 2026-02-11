@@ -5,6 +5,11 @@ import * as functions from 'firebase-functions/v2'
 
 export class FirebaseAdminDatasource extends DataSource {
 
+	constructor( firebaseFunctionsGlobalOptions?: functions.GlobalOptions ) {
+		super()
+		if ( firebaseFunctionsGlobalOptions )	functions.setGlobalOptions( firebaseFunctionsGlobalOptions )
+	}
+
 	override findById( id: string, collectionName: string ): Promise< DocumentObject > {
 		const db = FirebaseAdminHelper.instance.firestore()
 		
