@@ -145,8 +145,10 @@ export class FirebaseAdminDatasource extends DataSource {
 	protected override async resolveCollectionPaths( template: string ): Promise<string[]> {
 		const templateTokens = template.split( '/' )
 		if ( templateTokens.length > 3 || templateTokens.length < 1 ) throw new Error(`FirebaseAdminDatasource.collectionsMatchingTemplate only supports collection and subcollection paths (max 3 tokens). Collection path provided: ${ template }`)
-		const [ mainCollection, _document, subcollection ] = templateTokens
-		if ( !mainCollection ) throw new Error('FirebaseAdminDatasource.collectionsMatchingTemplate requires a document and subcollection')
+		const [ mainCollection, document, subcollection ] = templateTokens
+		if ( !mainCollection || !document || !subcollection ) throw new Error('FirebaseAdminDatasource.collectionsMatchingTemplate requires a document and subcollection')
+		
+		if ( document[0] !== '{' ) return [ template ] // if the second token is not a document, we are in a simple collection path and we can return it as is
 
 		const db = FirebaseAdminHelper.instance.firestore()
 
