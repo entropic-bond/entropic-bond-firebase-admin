@@ -1,3 +1,10 @@
+## [1.7.20](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.19...v1.7.20) (2026-03-10)
+
+
+### Bug Fixes
+
+* update dependencies and enhance logging in FirebaseAdminDatasource ([1e8731d](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/1e8731dedcc019c464cf52a9adcea6f8876c3ded))
+
 ## [1.7.19](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.18...v1.7.19) (2026-02-26)
 
 
