@@ -1,3 +1,10 @@
+## [1.7.23](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.22...v1.7.23) (2026-03-10)
+
+
+### Bug Fixes
+
+* update document change listener memory allocation and region in FirebaseAdminDatasource ([4cf17ac](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/4cf17ac89796de1dba9883bee48a6ebb613914c3))
+
 ## [1.7.22](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.21...v1.7.22) (2026-03-10)
 
 
