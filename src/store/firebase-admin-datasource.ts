@@ -127,7 +127,8 @@ export class FirebaseAdminDatasource extends DataSource {
 		const handler = functions.firestore.onDocumentUpdated({ 
 			document: collectionPathToListen + '/{docId}', 
 			memory: '1GiB', 
-			region: 'europe-west4' 
+			region: 'europe-west4',
+			maxInstances: 2 
 		}, event => {
 			const snapshot = event.data
 			listener({ 
