@@ -1,3 +1,10 @@
+## [1.7.25](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.24...v1.7.25) (2026-03-10)
+
+
+### Bug Fixes
+
+* update firebase dependencies and refactor document change listener ([f415948](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/f415948811e3b6de71cc1454efb90bd2f7c8d17b))
+
 ## [1.7.24](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.23...v1.7.24) (2026-03-10)
 
 
