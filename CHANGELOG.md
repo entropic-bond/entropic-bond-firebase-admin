@@ -1,3 +1,10 @@
+## [1.7.22](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.21...v1.7.22) (2026-03-10)
+
+
+### Bug Fixes
+
+* reduce memory allocation for document change listener in FirebaseAdminDatasource ([b229f43](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/b229f43761cb8a516033aac5ef8df6879b3aea0b))
+
 ## [1.7.21](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.20...v1.7.21) (2026-03-10)
 
 
