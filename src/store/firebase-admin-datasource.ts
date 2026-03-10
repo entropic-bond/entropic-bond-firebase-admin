@@ -124,7 +124,7 @@ export class FirebaseAdminDatasource extends DataSource {
 	}
 
 	protected override subscribeToDocumentChangeListener( collectionPathToListen: string, listener: DocumentChangeListener<DocumentObject> ): DocumentChangeListenerHandler | undefined {
-		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
+		const handler = functions.firestore.onDocumentUpdated({ document: collectionPathToListen + '/{docId}', memory: '1GiB' }, event => {
 			const snapshot = event.data
 			listener({ 
 				before: snapshot?.before.data() as DocumentObject, 
