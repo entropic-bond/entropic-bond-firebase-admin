@@ -1,3 +1,10 @@
+## [1.7.19](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.18...v1.7.19) (2026-02-26)
+
+
+### Bug Fixes
+
+* resolveCollectionPaths should return template parameter in an array if it is not a template ([1c93a58](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/1c93a589d790207881b948f72230ec64355a8f68))
+
 ## [1.7.18](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.17...v1.7.18) (2026-02-11)
 
 
