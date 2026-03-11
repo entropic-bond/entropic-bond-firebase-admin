@@ -1,3 +1,10 @@
+## [1.7.26](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.25...v1.7.26) (2026-03-10)
+
+
+### Bug Fixes
+
+* add maxInstances to document update listener in FirebaseAdminDatasource ([fad49fc](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/fad49fce9cf3cf570a5568412668bd42ad5cc87d))
+
 ## [1.7.25](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.24...v1.7.25) (2026-03-10)
 
 
