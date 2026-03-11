@@ -1,3 +1,10 @@
+## [1.7.29](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.28...v1.7.29) (2026-03-11)
+
+
+### Bug Fixes
+
+* remove logging statements from resolveCollectionPaths method ([d94a425](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/d94a425a3927ac33f9201f7f5ab50eecb5451a06))
+
 ## [1.7.28](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.27...v1.7.28) (2026-03-11)
 
 
