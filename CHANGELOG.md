@@ -1,3 +1,10 @@
+## [1.7.28](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.27...v1.7.28) (2026-03-11)
+
+
+### Bug Fixes
+
+* update entropic-bond dependency to version 1.57.0 and remove unused document change listener ([733529b](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/733529b9a542b9bbc0dbf6d8d055318fbf074cbb))
+
 ## [1.7.27](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.26...v1.7.27) (2026-03-11)
 
 
