@@ -1,3 +1,10 @@
+## [1.7.27](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.26...v1.7.27) (2026-03-11)
+
+
+### Bug Fixes
+
+* remove server settings in onDocumentUpdated ([8dbe079](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/8dbe0799274d04a78ac2f1835b5955822f1262aa))
+
 ## [1.7.26](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.25...v1.7.26) (2026-03-10)
 
 
