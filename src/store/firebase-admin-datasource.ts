@@ -1,4 +1,4 @@
-import { CollectionChangeListener, Collections, DataSource, DocumentChangeListener, DocumentChangeListenerHandler, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
+import { CollectionChangeListener, Collections, DataSource, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
@@ -120,26 +120,6 @@ export class FirebaseAdminDatasource extends DataSource {
 			case 'contains': return 'array-contains'
 			case 'containsAny': return 'array-contains-any'
 			default: return operator
-		}
-	}
-
-	protected override subscribeToDocumentChangeListener( collectionPathToListen: string, listener: DocumentChangeListener<DocumentObject> ): DocumentChangeListenerHandler | undefined {
-		const handler = functions.firestore.onDocumentUpdated( collectionPathToListen + '/{docId}', event => {
-			const snapshot = event.data
-			listener({ 
-				before: snapshot?.before.data() as DocumentObject, 
-				after: snapshot?.after.data() as DocumentObject,
-				type: 'update',
-				params: event.params,
-				collectionPath: collectionPathToListen
-			})
-		})
-		
-		return {
-			uninstall: () => {},
-			nativeHandler: handler,
-			collectionPath: collectionPathToListen,
-			props: []
 		}
 	}
 
