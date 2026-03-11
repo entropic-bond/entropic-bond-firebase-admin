@@ -1,3 +1,10 @@
+## [1.8.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.0...v1.8.1) (2026-03-11)
+
+
+### Bug Fixes
+
+* update toDocumentObjectChange method to handle undefined FirestoreEvent ([9e3b107](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/9e3b107c5f080fa3b4036820eda73520349219a1))
+
 # [1.8.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.29...v1.8.0) (2026-03-11)
 
 
