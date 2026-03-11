@@ -1,3 +1,10 @@
+## [1.8.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.1...v1.8.2) (2026-03-11)
+
+
+### Bug Fixes
+
+* update entropic-bond dependency version to 1.57.1 ([c64a788](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/c64a7888c9d589e567afe8cd2de1d8958be61076))
+
 ## [1.8.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.0...v1.8.1) (2026-03-11)
 
 
