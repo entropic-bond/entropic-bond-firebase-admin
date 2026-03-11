@@ -1,7 +1,8 @@
-import { CollectionChangeListener, Collections, DataSource, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
+import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
-import { Filter, WhereFilterOp } from 'firebase-admin/firestore'
+import { DocumentSnapshot, Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
+import { FirestoreEvent } from 'firebase-functions/firestore'
 
 export class FirebaseAdminDatasource extends DataSource {
 
@@ -171,6 +172,15 @@ export class FirebaseAdminDatasource extends DataSource {
 
 		// })
 		throw new Error( 'Not implemented yet')
+	}
+
+	static toDocumentObjectChange( event: FirestoreEvent<functions.Change<DocumentSnapshot> > ): DocumentChange<DocumentObject> {
+		return {
+			type: event.data?.before.exists? event.data?.after.exists? 'update' : 'delete' : 'create',
+			before: event.data?.before.exists? event.data.before.data() as DocumentObject : undefined,
+			after: event.data?.after.exists? event.data.after.data() as DocumentObject : undefined,
+			params: event.params
+		}
 	}
 	
 
