@@ -174,7 +174,7 @@ export class FirebaseAdminDatasource extends DataSource {
 		throw new Error( 'Not implemented yet')
 	}
 
-	static toDocumentObjectChange( event: FirestoreEvent<functions.Change<DocumentSnapshot> > ): DocumentChange<DocumentObject> {
+	static toDocumentObjectChange( event: FirestoreEvent<functions.Change<DocumentSnapshot> | undefined > ): DocumentChange<DocumentObject> {
 		return {
 			type: event.data?.before.exists? event.data?.after.exists? 'update' : 'delete' : 'create',
 			before: event.data?.before.exists? event.data.before.data() as DocumentObject : undefined,
