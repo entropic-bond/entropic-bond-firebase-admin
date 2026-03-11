@@ -133,9 +133,7 @@ export class FirebaseAdminDatasource extends DataSource {
 
 		const db = FirebaseAdminHelper.instance.firestore()
 
-		functions.logger.info( `Resolving collection paths matching template ${ template }` )
 		const docs = await db.collection( mainCollection ).get()
-		functions.logger.info( `Found ${ docs.size } documents in collection ${ mainCollection }` )
 
 		const collectionList: string[] = []
 		docs.docs.forEach(( doc ) => {
