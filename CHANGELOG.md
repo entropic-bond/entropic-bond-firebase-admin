@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.29...v1.8.0) (2026-03-11)
+
+
+### Features
+
+* add toDocumentObjectChange method for FirestoreEvent handling ([e7e87bc](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/e7e87bca7805f036dbee9a25b877fc12730c83eb))
+
 ## [1.7.29](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.7.28...v1.7.29) (2026-03-11)
 
 
