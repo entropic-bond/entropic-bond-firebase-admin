@@ -174,12 +174,17 @@ export class FirebaseAdminDatasource extends DataSource {
 		throw new Error( 'Not implemented yet')
 	}
 
+	override onDocumentTemplateChange( collectionTemplate: string, listener: DocumentChangeListener<DocumentObject> ): Unsubscriber {
+		throw new Error( 'Not implemented yet')
+	}
+
 	static toDocumentObjectChange( event: FirestoreEvent<functions.Change<DocumentSnapshot> | undefined > ): DocumentChange<DocumentObject> {
 		return {
 			type: event.data?.before.exists? event.data?.after.exists? 'update' : 'delete' : 'create',
 			before: event.data?.before.exists? event.data.before.data() as DocumentObject : undefined,
 			after: event.data?.after.exists? event.data.after.data() as DocumentObject : undefined,
-			params: event.params
+			params: event.params,
+			collectionPath: event.document.split('/').slice(0, -1).join('/'),
 		}
 	}
 	
