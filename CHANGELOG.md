@@ -1,3 +1,10 @@
+## [1.8.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.2...v1.8.3) (2026-03-12)
+
+
+### Bug Fixes
+
+* update entropic-bond dependency to version 1.58.0 and enhance toDocumentObjectChange method ([4d4c837](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/4d4c8374dcdd55db6d4d4158b5590985567a6b44))
+
 ## [1.8.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.1...v1.8.2) (2026-03-11)
 
 
