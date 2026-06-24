@@ -466,11 +466,9 @@ describe( 'Firestore Model', ()=>{
 		})
 
 		describe( 'Data Cursors', ()=>{
-			beforeEach( async ()=>{
-				await model.find().get( 2 )
-			})
-
+			
 			it( 'should get next result set', async ()=>{
+				await model.find().get( 2 )
 				const docs = await model.next()
 				const mockDataArr = Object.values( mockData.TestUser )
 				
@@ -478,11 +476,49 @@ describe( 'Firestore Model', ()=>{
 				expect( docs[0]?.id ).toEqual( mockDataArr[2]!.id )
 				expect( docs[ 0 ]?.id ).toEqual( 'user3' )
 			})
-
+			
 			it( 'should not go beyond the end of result set', async ()=>{
+				await model.find().get( 2 )
 				await model.next()
 				await model.next()
 				const docs = await model.next()
+				expect( docs ).toHaveLength( 0 )
+			})
+
+			it( 'should get empty array if no more results', async ()=>{
+				await model.find().get( 20 )
+				const docs = await model.next()
+				expect( docs ).toHaveLength( 0 )
+			})
+
+			it( 'should get empty array if no more results with limit in next', async ()=>{
+				await model.find().get( 20 )
+				const docs = await model.next( 20 )
+				expect( docs ).toHaveLength( 0 )
+			})
+
+			it( 'should not throw', async ()=> {
+				expect.assertions( 1 )
+				let res = await model.find().get( 20 )
+				const allRes: TestUser[] = []
+				while( res.length > 0 ) {
+					allRes.push( ...res )
+					res = await model.next( 20 )
+				}
+				expect( allRes ).toHaveLength( 6 )
+			})
+
+			it( 'should work with only one result set', async ()=>{
+				const firstRes = await model.find().where( 'id', '==', 'user1' ).get( 20 )
+				expect( firstRes ).toHaveLength( 1 )
+				const docs = await model.next( 20 )
+				expect( docs ).toHaveLength( 0 )
+			})
+
+			it( 'should work with no result set', async ()=>{
+				const firstRes = await model.find().where( 'id', '==', '****' ).get( 20 )
+				expect( firstRes ).toHaveLength( 0 )
+				const docs = await model.next( 20 )
 				expect( docs ).toHaveLength( 0 )
 			})
 
