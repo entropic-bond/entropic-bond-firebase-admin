@@ -10,8 +10,8 @@ export class FirebaseServerAuth extends ServerAuthService {
 				await FirebaseAdminHelper.instance.auth().getUser( userId )
 			)
 		} catch ( error ) {
-			if ( error.code === 'auth/user-not-found' ) return undefined
-			else throw new Error( error )
+			if ( (error as { code?: string }).code === 'auth/user-not-found' ) return undefined
+			else throw error
 		}
 	}
 
@@ -30,8 +30,8 @@ export class FirebaseServerAuth extends ServerAuthService {
 			await FirebaseAdminHelper.instance.auth().deleteUser( userId )
 		}
 		catch ( error ) {
-			if ( error.code === 'auth/user-not-found' ) return undefined
-			else throw new Error( error )
+			if ( (error as { code?: string }).code === 'auth/user-not-found' ) return undefined
+			else throw error
 		}
 	}
 

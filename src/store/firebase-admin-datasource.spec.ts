@@ -83,8 +83,8 @@ describe( 'Firestore Model', ()=>{
 		expect( deletedUser ).toBeUndefined()
 	})
 
-	it( 'should not throw if a document id doesn\'t exists', ()=>{
-		expect( model.findById( 'nonExistingId' ) ).resolves.toBeUndefined()
+	it( 'should not throw if a document id doesn\'t exists', async ()=>{
+		await expect( model.findById( 'nonExistingId' ) ).resolves.toBeUndefined()
 	})
 
 	it( 'should return undefined if a document id doesn\'t exists', async ()=>{
