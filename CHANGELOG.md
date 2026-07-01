@@ -1,3 +1,10 @@
+## [1.8.6](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.5...v1.8.6) (2026-07-01)
+
+
+### Bug Fixes
+
+* npm update ([ea12449](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/ea124498443e411f6f64704841ec321bcb9f0f92))
+
 ## [1.8.5](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.4...v1.8.5) (2026-06-30)
 
 
