@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.6...v1.9.0) (2026-09-07)
+
+
+### Features
+
+* implement runTransactions ([94ad66d](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/94ad66dd3ac91649928c25f4fc4532adb6cf9ede))
+
 ## [1.8.6](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.5...v1.8.6) (2026-07-01)
 
 
