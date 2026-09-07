@@ -1,4 +1,4 @@
-import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, Unsubscriber } from 'entropic-bond'
+import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, TransactionConflictError, TransactionHandle, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { DocumentSnapshot, Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
@@ -59,6 +59,32 @@ export class FirebaseAdminDatasource extends DataSource {
 		const db = FirebaseAdminHelper.instance.firestore()
 
 		return db.recursiveDelete( db.doc( `${ collectionName }/${ id }` ) )
+	}
+
+	override async runTransaction<Result>( fn: ( handle: TransactionHandle ) => Promise<Result> ): Promise<Result> {
+		const db = FirebaseAdminHelper.instance.firestore()
+
+		try {
+			return await db.runTransaction( async transaction => {
+				const handle: TransactionHandle = {
+					findById: async ( id, collectionName ) => {
+						const docRef = db.doc( `${ collectionName }/${ id }` )
+						const docSnap = await transaction.get( docRef )
+						return docSnap.exists ? docSnap.data() as DocumentObject : undefined
+					},
+					save: async ( id, collectionName, doc ) => {
+						transaction.set( db.doc( `${ collectionName }/${ id }` ), doc as FirebaseFirestore.DocumentData )
+					},
+					delete: async ( id, collectionName ) => {
+						transaction.delete( db.doc( `${ collectionName }/${ id }` ) )
+					},
+				}
+				return fn( handle )
+			})
+		}
+		catch( error ) {
+			throw new TransactionConflictError()
+		}
 	}
 
 	override next( maxDocs?: number ): Promise< DocumentObject[] > {

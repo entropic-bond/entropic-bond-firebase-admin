@@ -544,6 +544,57 @@ describe( 'Firestore Model', ()=>{
 		})
 	})
 
+	describe( 'Transactions', ()=>{
+		it( 'should read and save a document within a transaction', async ()=>{
+			await model.runTransaction( async handle => {
+				const user = await handle.findById( 'user1' )
+				expect( user ).toBeInstanceOf( TestUser )
+				user!.age = 99
+				await handle.save( user! )
+			})
+
+			const updated = await model.findById( 'user1' )
+			expect( updated?.age ).toBe( 99 )
+		})
+
+		it( 'should resolve with the callback result', async ()=>{
+			const result = await model.runTransaction( async handle => {
+				const user = await handle.findById( 'user2' )
+				return user?.age
+			})
+
+			expect( result ).toBe( 21 )
+		})
+
+		it( 'should return undefined for a non existing document', async ()=>{
+			const result = await model.runTransaction( async handle => {
+				return handle.findById( 'nonExistingId' )
+			})
+
+			expect( result ).toBeUndefined()
+		})
+
+		it( 'should delete a document within a transaction', async ()=>{
+			await model.runTransaction( async handle => {
+				const user = await handle.findById( 'user1' )
+				await handle.delete( user! )
+			})
+
+			expect( await model.findById( 'user1' ) ).toBeUndefined()
+		})
+
+		it( 'should merge saved fields into an existing document', async ()=>{
+			await model.runTransaction( async handle => {
+				const user = await handle.findById( 'user1' )
+				user!.age = 55
+				await handle.save( user! )
+			})
+
+			const updated = await model.findById( 'user1' )
+			expect( updated?.age ).toBe( 55 )
+		})
+	})
+
 	// describe( 'Data source listeners', ()=>{
 	// 	let listenerHandlers: DocumentChangeListernerHandler[]
 	// 	let onUpdated = vi.fn()

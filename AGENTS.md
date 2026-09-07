@@ -2,19 +2,6 @@
 
 Firebase Admin plugins for Entropic Bond.
 
-## Notification on task completion
-
-When done, always run:
-```bash
-paplay /usr/share/sounds/freedesktop/stereo/complete.oga && curl -H "Priority: max" -d "I finished the task already" ntfy.sh/opencode-josep-1965 > /dev/null 2>&1
-```
-
-## Notification before asking on user input
-
-Before stopping to ask for a user input, always run:
-```bash
-paplay /usr/share/sounds/freedesktop/stereo/complete.oga && curl -H "Priority: max" -d "I need your input" ntfy.sh/opencode-josep-1965 > /dev/null 2>&1
-```
 ## Code format style
 
 - Use tabsize of 2 spaces (VSCode setting) for indentation.

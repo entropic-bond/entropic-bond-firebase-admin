@@ -1,16 +1,22 @@
-import { resolve } from 'path'
 import { defineConfig } from 'vitest/config'
-import dts from 'vite-plugin-dts'
+
+const nodeBuiltIns = [
+  'assert', 'async_hooks', 'buffer', 'child_process', 'crypto', 'dns',
+  'events', 'fs', 'http', 'http2', 'https', 'net', 'os', 'path', 'process',
+  'querystring', 'stream', 'tls', 'url', 'util', 'worker_threads', 'zlib',
+]
+
+const nodeBuiltInsPrefixes = [ 'node:' ]
 
 export default defineConfig({
   test: {
-		globals: true,
-		exclude: ['**/node_modules', '**/dist', '.idea', '.git', '.cache','**/lib', '**/out'],
-	},
-	build: {
-		lib: {
-			entry: resolve( __dirname, 'src/index.ts' ),
-			name: 'entropic-bond-firebase-admin',
+    globals: true,
+    exclude: ['**/node_modules', '**/dist', '.idea', '.git', '.cache', '**/lib', '**/out'],
+  },
+  build: {
+    lib: {
+      entry: import.meta.dirname + '/src/index.ts',
+      name: 'entropic-bond-firebase-admin',
 			formats: ['es', 'cjs'],
 			fileName: (format) => {
 				if (format === 'es') return 'esm/index.js';
@@ -30,11 +36,4 @@ export default defineConfig({
 			]
 		}
 	},
-	plugins: [
-		dts({
-			outDir: 'lib/esm',
-			entryRoot: 'src',
-			exclude: ['**/*.spec.ts', '**/*.test.ts', 'src/mocks/**']
-		})
-	]
 })
