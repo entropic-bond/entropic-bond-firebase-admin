@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.9.0...v1.10.0) (2026-09-11)
+
+
+### Features
+
+* onDocumentChange ([5ca1c8a](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/5ca1c8a89fae4503601c67c64b5db84604cf7f43))
+
 # [1.9.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.8.6...v1.9.0) (2026-09-07)
 
 
