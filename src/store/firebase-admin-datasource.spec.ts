@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import dns from 'node:dns'
-import { Model, Persistent, Store } from 'entropic-bond'
+import { DocumentChange, Model, Persistent, Store } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
@@ -551,6 +551,7 @@ describe( 'Firestore Model', ()=>{
 				expect( user ).toBeInstanceOf( TestUser )
 				user!.age = 99
 				await handle.save( user! )
+				return user!
 			})
 
 			const updated = await model.findById( 'user1' )
@@ -560,15 +561,15 @@ describe( 'Firestore Model', ()=>{
 		it( 'should resolve with the callback result', async ()=>{
 			const result = await model.runTransaction( async handle => {
 				const user = await handle.findById( 'user2' )
-				return user?.age
+				return user!
 			})
 
-			expect( result ).toBe( 21 )
+			expect( result.age ).toBe( 21 )
 		})
 
 		it( 'should return undefined for a non existing document', async ()=>{
 			const result = await model.runTransaction( async handle => {
-				return handle.findById( 'nonExistingId' )
+				return ( await handle.findById( 'nonExistingId' ) ) as TestUser
 			})
 
 			expect( result ).toBeUndefined()
@@ -578,6 +579,7 @@ describe( 'Firestore Model', ()=>{
 			await model.runTransaction( async handle => {
 				const user = await handle.findById( 'user1' )
 				await handle.delete( user! )
+				return user!
 			})
 
 			expect( await model.findById( 'user1' ) ).toBeUndefined()
@@ -588,6 +590,7 @@ describe( 'Firestore Model', ()=>{
 				const user = await handle.findById( 'user1' )
 				user!.age = 55
 				await handle.save( user! )
+				return user!
 			})
 
 			const updated = await model.findById( 'user1' )
@@ -595,34 +598,113 @@ describe( 'Firestore Model', ()=>{
 		})
 	})
 
-	// describe( 'Data source listeners', ()=>{
-	// 	let listenerHandlers: DocumentChangeListernerHandler[]
-	// 	let onUpdated = vi.fn()
+	describe( 'Data listeners', ()=>{
+		let unsubscribe: (()=> void) | undefined
 
-	// 	beforeEach(()=>{
-	// 		listenerHandlers = Store.dataSource.installReferencePersistentPropsUpdaters( onUpdated )
-	// 	})
+		afterEach(()=>{
+			unsubscribe?.()
+			unsubscribe = undefined
+		})
 
-	// 	afterEach(()=>{
-	// 		listenerHandlers.forEach( handler => handler.uninstall() )
-	// 	})
+		it( 'should emit collection changes with the full current snapshot', async ()=>{
+			const loadedUser = await model.findById( 'user6' )
+			const listener = vi.fn()
 
-	// 	it( 'should update when a document is changed', async ()=>{
-	// 		const userModel = Store.getModel<TestUser>( 'TestUser' )
-	// 		const user1 = ( await userModel.findById( 'user1' ) )!
-	// 		user1.age = 99
-	// 		user1.admin = false
-	// 		await userModel.save( user1 )
+			unsubscribe = model.onCollectionChange( model.find(), listener )
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
+			listener.mockClear()
 
-	// 		// await vi.waitFor( ()=>{
-	// 		// 	if ( onUpdated.mock.calls.length == 0 ) throw 'Not updated' 
-	// 		// })
-	// 		const referenceModel = Store.getModel<UsesUserAsPersistentProp>( 'UsesUserAsPersistentProp' )
-	// 		const reference = ( await referenceModel.findById( 'usesUserAsPersistentProp1' ) )!
-	// 		expect( reference.user?.age ).toBe( 99 )
-	// 		expect( reference.user?.admin ).toBeFalsy()
-	// 	})
-	// })
+			loadedUser!.age = 77
+			await model.save( loadedUser! )
+
+			await vi.waitFor(()=>{
+				const updateCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'update' && c.after?.id === 'user6' ))
+				expect( updateCall ).toBeDefined()
+				expect( updateCall![ 0 ]).toEqual( expect.arrayContaining([
+					expect.objectContaining({ type: 'update', after: expect.objectContaining({ id: 'user6', age: 77 }) })
+				]))
+				expect( updateCall![ 1 ]).toEqual( expect.arrayContaining([
+					expect.objectContaining({ id: 'user6', age: 77 })
+				]))
+			}, { timeout: 5000 })
+		})
+
+		it( 'should report an added document as create and include it in the snapshot', async ()=>{
+			const listener = vi.fn()
+			const newUser = new TestUser( 'newCreatedId' )
+			newUser.name = { firstName: 'New', lastName: 'Created' }
+
+			unsubscribe = model.onCollectionChange( model.find(), listener )
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
+			listener.mockClear()
+
+			await model.save( newUser )
+
+			await vi.waitFor(()=>{
+				const createCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'create' && c.after?.id === 'newCreatedId' ))
+				expect( createCall ).toBeDefined()
+				expect( createCall![ 1 ]).toEqual( expect.arrayContaining([
+					expect.objectContaining({ id: 'newCreatedId' })
+				]))
+			}, { timeout: 5000 })
+		})
+
+		it( 'should report a removed document as delete and drop it from the snapshot', async ()=>{
+			await model.findById( 'user6' )
+			const listener = vi.fn()
+
+			unsubscribe = model.onCollectionChange( model.find(), listener )
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
+			listener.mockClear()
+
+			await model.delete( 'user6' )
+
+			await vi.waitFor(()=>{
+				const deleteCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'delete' && c.after?.id === 'user6' ))
+				expect( deleteCall ).toBeDefined()
+				const snapshot = deleteCall![ 1 ] as TestUser[]
+				expect( snapshot.some( user => user.id === 'user6' )).toBe( false )
+			}, { timeout: 5000 })
+		})
+
+		it( 'should not emit for a not-yet-created document and emit update once created', async ()=>{
+			const listener = vi.fn()
+			const newUser = new TestUser( 'neverCreatedId' )
+			newUser.name = { firstName: 'Never', lastName: 'Created' }
+
+			unsubscribe = model.onDocumentChange( 'neverCreatedId', listener )
+			await new Promise( resolve => setTimeout( resolve, 800 ) )
+			expect( listener ).not.toHaveBeenCalled()
+
+			await model.save( newUser )
+
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
+				type: 'update',
+				after: expect.objectContaining({ id: 'neverCreatedId' }),
+				params: expect.objectContaining({ exists: true }),
+			})), { timeout: 5000 })
+		})
+
+		it( 'should emit delete type and existence state when a document is deleted', async ()=>{
+			const listener = vi.fn()
+			const loadedUser = await model.findById( 'user6' )
+
+			unsubscribe = model.onDocumentChange( 'user6', listener )
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
+				type: 'update',
+				params: expect.objectContaining({ exists: true }),
+			})), { timeout: 5000 } )
+			listener.mockClear()
+
+			await model.delete( loadedUser!.id )
+
+			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
+				type: 'delete',
+				after: undefined,
+				params: expect.objectContaining({ exists: false }),
+			})), { timeout: 5000 })
+		})
+	})
 
 })
 

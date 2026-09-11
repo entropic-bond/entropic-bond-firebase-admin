@@ -178,33 +178,45 @@ export class FirebaseAdminDatasource extends DataSource {
 	}
 	
 	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: CollectionChangeListener<DocumentObject> ): Unsubscriber {
-		// const queryConstraints = this.queryObjectToQueryConstraints( query as unknown as QueryObject<DocumentObject>, collectionName )
-		// return onSnapshot( queryConstraints, snapshot => {
-		// 	snapshot.docChanges().forEach( change => {
-		// 		listener({
-		// 			type: change.type === 'added'? 'create' : change.type === 'modified'? 'update' : 'delete',
-		// 			after: change.doc.data() as DocumentObject,
-		// 			before: undefined,
-		// 			params: {}
-		// 		})
-		// 	})
-		// })
-		throw new Error( 'Not implemented yet')
+		const firebaseQuery = this.queryObjectToFirebaseQuery( query, collectionName )
+
+		return firebaseQuery.onSnapshot( snapshot => {
+			const changes = snapshot.docChanges().map( change => this.toCollectionDocumentChange( change, collectionName ) )
+			listener( changes, snapshot.docs.map( doc => doc.data() as DocumentObject ) )
+		})
 	}
 
 	override onDocumentChange( documentPath: string, documentId: string, listener: DocumentChangeListener<DocumentObject> ): Unsubscriber {
-		// const db = FirebaseHelper.instance.firestore()
+		const db = FirebaseAdminHelper.instance.firestore()
+		let previousExists: boolean | undefined
 
-		// return onSnapshot( doc( db, documentPath, documentId ), snapshot => {
-		// 	listener({
-		// 		type: 'update',
-		// 		before: undefined,
-		// 		after: snapshot.data() as DocumentObject,
-		// 		params: {}
-		// 	})
+		return db.doc( `${ documentPath }/${ documentId }` ).onSnapshot( snapshot => {
+			const exists = snapshot.exists
 
-		// })
-		throw new Error( 'Not implemented yet')
+			if ( previousExists === undefined && !exists ) {
+				previousExists = exists
+				return
+			}
+
+			previousExists = exists
+			listener({
+				type: exists? 'update' : 'delete',
+				before: undefined,
+				after: exists? snapshot.data() as DocumentObject : undefined,
+				params: { exists },
+				collectionPath: documentPath,
+			})
+		})
+	}
+
+	private toCollectionDocumentChange( change: FirebaseFirestore.DocumentChange, collectionName: string ): DocumentChange<DocumentObject> {
+		return {
+			type: change.type === 'added'? 'create' : change.type === 'removed'? 'delete' : 'update',
+			after: change.doc.data() as DocumentObject,
+			before: undefined,
+			params: {},
+			collectionPath: collectionName,
+		}
 	}
 
 	override onDocumentTemplateChange( collectionTemplate: string, listener: DocumentChangeListener<DocumentObject> ): Unsubscriber {
