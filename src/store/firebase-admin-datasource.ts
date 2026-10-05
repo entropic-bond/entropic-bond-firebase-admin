@@ -1,8 +1,45 @@
-import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryObject, QueryOperator, TransactionConflictError, TransactionHandle, Unsubscriber } from 'entropic-bond'
+import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryCursor, QueryObject, QueryOperator, TransactionConflictError, TransactionHandle, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { DocumentSnapshot, Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
 import { FirestoreEvent } from 'firebase-functions/firestore'
+
+/**
+ * Paginates a Firebase query server-side. It owns the base query, the page size
+ * and the last retrieved snapshot, so pagination state is local to the query
+ * that produced the cursor instead of being shared across the data source.
+ */
+export class FirebaseAdminQueryCursor extends QueryCursor {
+
+	constructor(
+		private _baseQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
+		private _pageSize: number,
+	) {
+		super([])
+	}
+
+	override async next( limit?: number ): Promise< DocumentObject[] > {
+		if ( limit !== undefined ) this._pageSize = limit
+		if ( this._exhausted ) return []
+
+		let query = this._baseQuery
+		if ( this._lastSnapshot ) query = query.startAfter( this._lastSnapshot )
+		if ( this._pageSize > 0 ) query = query.limit( this._pageSize )
+
+		const snapshot = await query.get()
+
+		if ( snapshot.empty ) {
+			this._exhausted = true
+			return []
+		}
+
+		this._lastSnapshot = snapshot.docs[ snapshot.docs.length - 1 ]
+		return snapshot.docs.map( doc => doc.data() as DocumentObject )
+	}
+
+	private _lastSnapshot: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined
+	private _exhausted: boolean = false
+}
 
 export class FirebaseAdminDatasource extends DataSource {
 
@@ -41,11 +78,10 @@ export class FirebaseAdminDatasource extends DataSource {
 		return batch.commit() as unknown as Promise<void>
 	}
 
-	override find( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise< DocumentObject[] > {
+	override find( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise< QueryCursor > {
 		const query = this.queryObjectToFirebaseQuery( queryObject, collectionName )
 
-		this._lastQuery = query
-		return this.getFromQuery( query )
+		return Promise.resolve( new FirebaseAdminQueryCursor( query, queryObject.limit || 0 ) )
 	}
 
 	override async count( queryObject: QueryObject<DocumentObject>, collectionName: string ): Promise<number> {
@@ -87,35 +123,9 @@ export class FirebaseAdminDatasource extends DataSource {
 		}
 	}
 
-	override next( maxDocs?: number ): Promise< DocumentObject[] > {
-		if( !this._lastQuery ) throw new Error('You should perform a query prior to using method next')
-		if ( !this._lastDocRetrieved ) return Promise.resolve([])
-
-		this._lastLimit = maxDocs || this._lastLimit
-
-		const query = this._lastQuery.limit( this._lastLimit ).startAfter( this._lastDocRetrieved )
-
-		return this.getFromQuery( query )
-	}
-
 	// prev should be used with next in reverse order
 	// prev( limit?: number ): Promise< DocumentObject[] > {
 	// }
-
-	private getFromQuery( query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> ): Promise<DocumentObject[]> {
-		return new Promise< DocumentObject[] >( async resolve => {
-			const doc = await query.get()
-
-			if ( doc.empty ) {
-				this._lastDocRetrieved = undefined
-				resolve([])
-			}
-			else {
-				this._lastDocRetrieved = doc.docs[ doc.docs.length-1 ]
-				resolve( doc.docs.map( doc => doc.data() as DocumentObject ) ) 
-			}
-		})
-	}
 
 	private queryObjectToFirebaseQuery( queryObject: QueryObject<DocumentObject>, collectionName: string ): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
 		const db = FirebaseAdminHelper.instance.firestore()
@@ -133,11 +143,6 @@ export class FirebaseAdminDatasource extends DataSource {
 
 		if ( queryObject.sort?.propertyName ) {
 			query = query.orderBy( queryObject.sort.propertyName, queryObject.sort.order ) 
-		}
-
-		if ( queryObject.limit ) {
-			this._lastLimit = queryObject.limit
-			query = query.limit( queryObject.limit )
 		}
 
 		return query
@@ -232,9 +237,4 @@ export class FirebaseAdminDatasource extends DataSource {
 			collectionPath: event.document.split('/').slice(0, -1).join('/'),
 		}
 	}
-	
-
-	private _lastQuery: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> | undefined
-	private _lastLimit: number = 0
-	private _lastDocRetrieved: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined
 }

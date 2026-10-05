@@ -522,6 +522,59 @@ describe( 'Firestore Model', ()=>{
 				expect( docs ).toHaveLength( 0 )
 			})
 
+			it( 'should keep each result set when two models interleave queries on one collection', async ()=>{
+				const modelA = Store.getModel<TestUser>( 'TestUser' )
+				const modelB = Store.getModel<TestUser>( 'TestUser' )
+
+				const firstA = await modelA.find().get( 2 )
+				const firstB = await modelB.find().get( 3 )
+
+				expect( firstA.map( user => user.id )).toEqual([ 'user1', 'user2' ])
+				expect( firstB.map( user => user.id )).toEqual([ 'user1', 'user2', 'user3' ])
+
+				const nextA = await modelA.next()
+				const nextB = await modelB.next()
+
+				expect( nextA.map( user => user.id )).toEqual([ 'user3', 'user4' ])
+				expect( nextB.map( user => user.id )).toEqual([ 'user4', 'user5', 'user6' ])
+			})
+
+			it( 'should not mix result sets when two collections interleave queries', async ()=>{
+				const subModel = Store.getModel<SubClass>( 'SubClass' )
+				await subModel.save( new SubClass( 'sub1' ) )
+				await subModel.save( new SubClass( 'sub2' ) )
+				await subModel.save( new SubClass( 'sub3' ) )
+
+				const firstUsers = await model.find().get( 2 )
+				const firstSubs = await subModel.find().get( 1 )
+
+				expect( firstUsers.map( user => user.id )).toEqual([ 'user1', 'user2' ])
+				expect( firstSubs.map( sub => sub.id )).toEqual([ 'sub1' ])
+
+				const nextUsers = await model.next()
+				expect( nextUsers.map( user => user.id )).toEqual([ 'user3', 'user4' ])
+			})
+
+			it( 'should reset pagination for a model when it re-runs its query', async ()=>{
+				const modelA = Store.getModel<TestUser>( 'TestUser' )
+				const modelB = Store.getModel<TestUser>( 'TestUser' )
+
+				await modelA.find().get( 2 )
+				await modelB.find().get( 2 )
+				await modelA.find().get()
+
+				const nextB = await modelB.next()
+				expect( nextB.map( user => user.id )).toEqual([ 'user3', 'user4' ])
+			})
+
+			it( 'should not disturb an in-progress cursor when counting', async ()=>{
+				await model.find().get( 2 )
+				expect( await model.find().count() ).toBe( 6 )
+
+				const docs = await model.next()
+				expect( docs.map( user => user.id )).toEqual([ 'user3', 'user4' ])
+			})
+
 		})
 	})
 
