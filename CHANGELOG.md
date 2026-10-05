@@ -1,3 +1,10 @@
+## [1.10.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.0...v1.10.1) (2026-10-05)
+
+
+### Bug Fixes
+
+* migrate FirebaseAdminDatasource to the 2.0.0 QueryCursor API ([#3](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/3)) ([a8f2d36](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/a8f2d36c9e53bc1ca9996dcb098edb9e9116e501)), closes [#2](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/2)
+
 # [1.10.0](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.9.0...v1.10.0) (2026-09-11)
 
 
