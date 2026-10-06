@@ -1,3 +1,10 @@
+## [1.10.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.1...v1.10.2) (2026-10-06)
+
+
+### Bug Fixes
+
+* **deps:** release build against entropic-bond ^2.0.4 ([#5](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/5)) ([1a943a9](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/1a943a9f67c3c654c4faf0814ba1b06777173497))
+
 ## [1.10.1](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.0...v1.10.1) (2026-10-05)
 
 
