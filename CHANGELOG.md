@@ -1,3 +1,10 @@
+## [1.10.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.3...v1.10.4) (2026-10-07)
+
+
+### Bug Fixes
+
+* report real transaction failures instead of masking them as conflicts ([#7](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/7)) ([5f7a27c](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/5f7a27ccc0f34344d6132fb0e03d8bfec26d4498))
+
 ## [1.10.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.2...v1.10.3) (2026-10-07)
 
 
