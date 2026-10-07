@@ -8,6 +8,8 @@ import { FirestoreEvent } from 'firebase-functions/firestore'
  * Paginates a Firebase query server-side. It owns the base query, the page size
  * and the last retrieved snapshot, so pagination state is local to the query
  * that produced the cursor instead of being shared across the data source.
+ * Every `next()` call claims its page synchronously by chaining onto the
+ * previous claim, so overlapping calls never read a stale position.
  */
 export class FirebaseAdminQueryCursor extends QueryCursor {
 
@@ -18,7 +20,15 @@ export class FirebaseAdminQueryCursor extends QueryCursor {
 		super([])
 	}
 
-	override async next( limit?: number ): Promise< DocumentObject[] > {
+	override next( limit?: number ): Promise< DocumentObject[] > {
+		// Claim this call's page synchronously: the claim runs only after the
+		// previous claim has fetched its page and committed the new position.
+		const claim = this._pending.then(() => this.fetchPage( limit ))
+		this._pending = claim.then(() => undefined, () => undefined )
+		return claim
+	}
+
+	private async fetchPage( limit?: number ): Promise< DocumentObject[] > {
 		if ( limit !== undefined ) this._pageSize = limit
 		if ( this._exhausted ) return []
 
@@ -36,6 +46,8 @@ export class FirebaseAdminQueryCursor extends QueryCursor {
 		this._lastSnapshot = snapshot.docs[ snapshot.docs.length - 1 ]
 		return snapshot.docs.map( doc => doc.data() as DocumentObject )
 	}
+
+	private _pending: Promise< void > = Promise.resolve()
 
 	private _lastSnapshot: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData> | undefined
 	private _exhausted: boolean = false

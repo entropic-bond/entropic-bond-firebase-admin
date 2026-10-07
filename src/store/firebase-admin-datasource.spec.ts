@@ -576,6 +576,54 @@ describe( 'Firestore Model', ()=>{
 			})
 
 		})
+
+		describe( 'Concurrency-safe pagination cursor [REQ-1] [REQ-2] [REQ-3] [REQ-4]', ()=>{
+
+			it( 'Overlapping next calls receive consecutive pages. [REQ-1]', async ()=>{
+				await model.find().get( 2 )
+
+				const [ pageA, pageB, pageC ] = await Promise.all([ model.next(), model.next(), model.next() ])
+
+				expect( pageA.map( user => user.id )).toEqual([ 'user3', 'user4' ])
+				expect( pageB.map( user => user.id )).toEqual([ 'user5', 'user6' ])
+				expect( pageC ).toHaveLength( 0 )
+			})
+
+			it( 'returns consecutive pages when concurrent calls cross the end of the result set', async ()=>{
+				await model.find().get( 4 )
+
+				const [ pageA, pageB ] = await Promise.all([ model.next(), model.next() ])
+
+				expect( pageA.map( user => user.id )).toEqual([ 'user5', 'user6' ])
+				expect( pageB ).toHaveLength( 0 )
+			})
+
+			it( 'Concurrent next calls past the end of the result set all resolve to empty pages. [REQ-2]', async ()=>{
+				await model.find().get( 20 )
+
+				const pages = await Promise.all([ model.next(), model.next(), model.next() ])
+
+				pages.forEach( page => expect( page ).toEqual( [] ))
+			})
+
+			it( 'An overlapping next call sizes its own page with its limit argument. [REQ-3]', async ()=>{
+				await model.find().get( 2 )
+
+				const [ pageA, pageB ] = await Promise.all([ model.next( 1 ), model.next( 1 ) ])
+
+				expect( pageA.map( user => user.id )).toEqual([ 'user3' ])
+				expect( pageB.map( user => user.id )).toEqual([ 'user4' ])
+			})
+
+			it( 'Each next call retrieves at most one page from the server. [REQ-4]', async ()=>{
+				await model.find().get( 2 )
+
+				const pages = await Promise.all([ model.next(), model.next(), model.next() ])
+
+				pages.forEach( page => expect( page.length ).toBeLessThanOrEqual( 2 ))
+			})
+
+		})
 	})
 
 	describe( 'SubCollections', ()=>{
