@@ -1,5 +1,6 @@
 import { CollectionChangeListener, Collections, DataSource, DocumentChange, DocumentChangeListener, DocumentObject, QueryCursor, QueryObject, QueryOperator, TransactionConflictError, TransactionHandle, Unsubscriber } from 'entropic-bond'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
+import { isTransactionContention } from './transaction-error'
 import { DocumentSnapshot, Filter, WhereFilterOp } from 'firebase-admin/firestore'
 import * as functions from 'firebase-functions/v2'
 import { FirestoreEvent } from 'firebase-functions/firestore'
@@ -131,7 +132,8 @@ export class FirebaseAdminDatasource extends DataSource {
 			})
 		}
 		catch( error ) {
-			throw new TransactionConflictError()
+			if ( isTransactionContention( error )) throw new TransactionConflictError()
+			throw error
 		}
 	}
 
