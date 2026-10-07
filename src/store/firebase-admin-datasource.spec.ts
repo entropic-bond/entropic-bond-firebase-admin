@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import dns from 'node:dns'
-import { DocumentChange, Model, Persistent, Store } from 'entropic-bond'
+import { DocumentChange, Model, Persistent, Store, TransactionConflictError } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
@@ -19,6 +19,16 @@ async function loadTestData( model: Model<TestUser> ) {
 			return model.save( user )
 		})
 	)
+}
+
+async function captureFailure( run: () => Promise< unknown > ): Promise< any > {
+	try {
+		await run()
+	}
+	catch( error ) {
+		return error
+	}
+	throw new Error( 'Expected the transaction to fail' )
 }
 
 describe( 'Firestore Model', ()=>{
@@ -696,6 +706,31 @@ describe( 'Firestore Model', ()=>{
 
 			const updated = await model.findById( 'user1' )
 			expect( updated?.age ).toBe( 55 )
+		})
+
+		it( 'A commit failure that cannot succeed on a retry keeps its own error. [REQ-1]', async ()=>{
+			const tooBig = await model.findById( 'user1' )
+			tooBig!.skills = [ 'x'.repeat( 1_200_000 ) ]
+
+			const failure = await captureFailure(() => model.runTransaction( async handle => {
+				await handle.save( tooBig! )
+				return tooBig!
+			}))
+
+			expect( failure ).not.toBeInstanceOf( TransactionConflictError )
+			expect( failure.code ).toBe( 3 )
+			expect( failure.message ).toMatch( /longer than/i )
+		})
+
+		it( 'A failure raised by the transaction callback keeps its own error. [REQ-2]', async ()=>{
+			const applicationError = new Error( 'callback boom' )
+
+			const failure = await captureFailure(() => model.runTransaction( async ()=>{
+				throw applicationError
+			}))
+
+			expect( failure ).toBe( applicationError )
+			expect( failure ).not.toBeInstanceOf( TransactionConflictError )
 		})
 	})
 
