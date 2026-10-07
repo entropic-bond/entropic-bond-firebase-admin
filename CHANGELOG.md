@@ -1,3 +1,10 @@
+## [1.10.3](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.2...v1.10.3) (2026-10-07)
+
+
+### Bug Fixes
+
+* make FirebaseAdminQueryCursor.next() concurrency-safe ([#6](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/6)) ([607361a](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/607361a28a06d3cdd757fc50128c8d7d9e792cf2))
+
 ## [1.10.2](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.1...v1.10.2) (2026-10-06)
 
 
