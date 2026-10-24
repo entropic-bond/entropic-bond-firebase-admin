@@ -1,3 +1,10 @@
+## [1.10.5](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.4...v1.10.5) (2026-10-24)
+
+
+### Bug Fixes
+
+* align live listeners with the core change contract ([#1](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/1)) ([3e6848c](https://github.com/entropic-bond/entropic-bond-firebase-admin/commit/3e6848cecd49af3ad55218ec5845d62e51f21b84)), closes [specs/#issue-1](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/issue-1) [#issue-2](https://github.com/entropic-bond/entropic-bond-firebase-admin/issues/issue-2)
+
 ## [1.10.4](https://github.com/entropic-bond/entropic-bond-firebase-admin/compare/v1.10.3...v1.10.4) (2026-10-07)
 
 
