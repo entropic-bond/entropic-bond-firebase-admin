@@ -2,7 +2,7 @@
  * @jest-environment node
  */
 import dns from 'node:dns'
-import { DocumentChange, Model, Persistent, Store, TransactionConflictError } from 'entropic-bond'
+import { DocumentChange, Model, Persistent, Query, Store, TransactionConflictError } from 'entropic-bond'
 import { FirebaseAdminDatasource } from './firebase-admin-datasource'
 import { FirebaseAdminHelper } from '../firebase-admin-helper'
 import { TestUser, DerivedUser, SubClass } from '../mocks/test-user'
@@ -734,7 +734,7 @@ describe( 'Firestore Model', ()=>{
 		})
 	})
 
-	describe( 'Data listeners', ()=>{
+	describe( 'Firestore listeners report changes in the core change vocabulary (gh-issue-1)', ()=>{
 		let unsubscribe: (()=> void) | undefined
 
 		afterEach(()=>{
@@ -742,105 +742,368 @@ describe( 'Firestore Model', ()=>{
 			unsubscribe = undefined
 		})
 
-		it( 'should emit collection changes with the full current snapshot', async ()=>{
-			const loadedUser = await model.findById( 'user6' )
+		const QUIET_PERIOD = 1000
+
+		const settle = ( ms: number )=> new Promise( resolve => setTimeout( resolve, ms ) )
+
+		async function expectQuiet( listener: ReturnType< typeof vi.fn > ) {
+			await settle( QUIET_PERIOD )
+			expect( listener ).not.toHaveBeenCalled()
+		}
+
+		async function expectOnlyOne( listener: ReturnType< typeof vi.fn > ) {
+			await settle( QUIET_PERIOD )
+			expect( listener ).toHaveBeenCalledTimes( 1 )
+		}
+
+		const ids = ( documents: TestUser[] )=> documents.map( document => document.id )
+
+		const isChange = ( type: DocumentChange<TestUser>[ 'type' ], id: string )=>( change: DocumentChange<TestUser> )=>
+			change.type === type && change.after?.id === id
+
+		function listenToCollection( query: Query<TestUser> ) {
 			const listener = vi.fn()
+			unsubscribe = model.onCollectionChange( query, listener )
+			return listener
+		}
 
-			unsubscribe = model.onCollectionChange( model.find(), listener )
+		function listenToDocument( documentId: string ) {
+			const listener = vi.fn()
+			unsubscribe = model.onDocumentChange( documentId, listener )
+			return listener
+		}
+
+		async function awaitFirstNotification( listener: ReturnType< typeof vi.fn > ) {
 			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
-			listener.mockClear()
+		}
 
-			loadedUser!.age = 77
-			await model.save( loadedUser! )
+		async function listenToSeededCollection( query: Query<TestUser> ) {
+			const listener = listenToCollection( query )
+			await awaitFirstNotification( listener )
+			listener.mockClear()
+			return listener
+		}
+
+		async function listenToSeededDocument( documentId: string ) {
+			const listener = listenToDocument( documentId )
+			await awaitFirstNotification( listener )
+			listener.mockClear()
+			return listener
+		}
+
+		async function awaitNotification(
+			listener: ReturnType< typeof vi.fn >,
+			predicate: ( change: DocumentChange<TestUser> )=> boolean,
+		): Promise< [ DocumentChange<TestUser>[], TestUser[] ] > {
+			let notification: [ DocumentChange<TestUser>[], TestUser[] ] | undefined
 
 			await vi.waitFor(()=>{
-				const updateCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'update' && c.after?.id === 'user6' ))
-				expect( updateCall ).toBeDefined()
-				expect( updateCall![ 0 ]).toEqual( expect.arrayContaining([
-					expect.objectContaining({ type: 'update', after: expect.objectContaining({ id: 'user6', age: 77 }) })
-				]))
-				expect( updateCall![ 1 ]).toEqual( expect.arrayContaining([
-					expect.objectContaining({ id: 'user6', age: 77 })
-				]))
+				notification = listener.mock.calls.find(([ changes ])=> changes.some( predicate )) as [ DocumentChange<TestUser>[], TestUser[] ] | undefined
+				expect( notification ).toBeDefined()
 			}, { timeout: 5000 })
-		})
 
-		it( 'should report an added document as create and include it in the snapshot', async ()=>{
-			const listener = vi.fn()
-			const newUser = new TestUser( 'newCreatedId' )
-			newUser.name = { firstName: 'New', lastName: 'Created' }
+			return notification!
+		}
 
-			unsubscribe = model.onCollectionChange( model.find(), listener )
-			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
-			listener.mockClear()
-
-			await model.save( newUser )
+		async function awaitDocumentNotification(
+			listener: ReturnType< typeof vi.fn >,
+			predicate: ( change: DocumentChange<TestUser> )=> boolean,
+		): Promise< DocumentChange<TestUser> > {
+			let notification: DocumentChange<TestUser> | undefined
 
 			await vi.waitFor(()=>{
-				const createCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'create' && c.after?.id === 'newCreatedId' ))
-				expect( createCall ).toBeDefined()
-				expect( createCall![ 1 ]).toEqual( expect.arrayContaining([
-					expect.objectContaining({ id: 'newCreatedId' })
-				]))
+				notification = listener.mock.calls.map(([ change ])=> change as DocumentChange<TestUser> ).find( predicate )
+				expect( notification ).toBeDefined()
 			}, { timeout: 5000 })
+
+			return notification!
+		}
+
+		function newUser( id: string, age: number ) {
+			const user = new TestUser( id )
+			user.name = { firstName: 'New', lastName: id }
+			user.age = age
+			return user
+		}
+
+		async function changeAge( id: string, age: number ) {
+			const user = await model.findById( id )
+			user!.age = age
+			await model.save( user! )
+		}
+
+		const allUserIds = [ 'user1', 'user2', 'user3', 'user4', 'user5', 'user6' ]
+
+		it( 'Subscribing seeds the listener with the current matching documents. [REQ-1]', async ()=>{
+			const listener = listenToCollection( model.find() )
+
+			await awaitFirstNotification( listener )
+			await expectOnlyOne( listener )
+
+			const [ changes, snapshot ] = listener.mock.calls[ 0 ] as [ DocumentChange<TestUser>[], TestUser[] ]
+			expect( changes ).toHaveLength( 6 )
+			expect( changes.every( change => change.type === 'create' )).toBe( true )
+			expect( changes.every( change => change.before === undefined )).toBe( true )
+			expect( changes.every( change => change.after?.age !== undefined )).toBe( true )
+			expect( changes.map( change => change.after?.id ).sort() ).toEqual( allUserIds )
+			expect( ids( snapshot ).sort() ).toEqual( allUserIds )
 		})
 
-		it( 'should report a removed document as delete and drop it from the snapshot', async ()=>{
-			await model.findById( 'user6' )
-			const listener = vi.fn()
+		it( 'A newly matching document is reported as a create change. [REQ-2]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
 
-			unsubscribe = model.onCollectionChange( model.find(), listener )
-			await vi.waitFor(()=> expect( listener ).toHaveBeenCalled(), { timeout: 5000 } )
-			listener.mockClear()
+			await model.save( newUser( 'user7', 30 ) )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'create', 'user7' ))
+			expect( changes ).toHaveLength( 1 )
+			expect( changes[ 0 ]).toEqual( expect.objectContaining({
+				type: 'create',
+				after: expect.objectContaining({ id: 'user7', age: 30 }),
+			}))
+			expect( ids( snapshot )).toContain( 'user7' )
+		})
+
+		it( 'An updated document that still matches is reported as an update change. [REQ-3]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+
+			await changeAge( 'user1', 24 )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'update', 'user1' ))
+			expect( changes ).toHaveLength( 1 )
+			expect( changes[ 0 ]).toEqual( expect.objectContaining({
+				type: 'update',
+				after: expect.objectContaining({ id: 'user1', age: 24 }),
+			}))
+			expect( snapshot.find( document => document.id === 'user1' )?.age ).toBe( 24 )
+		})
+
+		it( 'An updated document that no longer matches is reported as a delete change. [REQ-4]', async ()=>{
+			const listener = await listenToSeededCollection( model.find().where( 'age', '>=', 20 ))
+
+			await changeAge( 'user1', 10 )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'delete', 'user1' ))
+			expect( changes ).toEqual([ expect.objectContaining({ type: 'delete', before: undefined })] )
+			expect( ids( snapshot )).not.toContain( 'user1' )
+		})
+
+		it( 'A deleted matching document is reported as a delete change. [REQ-5]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+
+			await model.delete( 'user3' )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'delete', 'user3' ))
+			expect( changes ).toHaveLength( 1 )
+			expect( changes[ 0 ]).toEqual( expect.objectContaining({
+				type: 'delete',
+				after: expect.objectContaining({ id: 'user3', age: 56 }),
+			}))
+			expect( ids( snapshot )).not.toContain( 'user3' )
+		})
+
+		it( 'Writing or deleting a document that does not match is not reported. [REQ-6]', async ()=>{
+			const listener = await listenToSeededCollection( model.find().where( 'age', '>=', 30 ))
+
+			await changeAge( 'user1', 24 )
+			await model.delete( 'user2' )
+
+			await expectQuiet( listener )
+		})
+
+		it( 'A limited and sorted query observes only its window. [REQ-7]', async ()=>{
+			const listener = listenToCollection( model.find().orderBy( 'age', 'asc' ).limit( 3 ))
+
+			await awaitFirstNotification( listener )
+
+			const [ changes, snapshot ] = listener.mock.calls[ 0 ] as [ DocumentChange<TestUser>[], TestUser[] ]
+			expect( changes.map( change => `${ change.type }:${ change.after?.id }` ))
+				.toEqual([ 'create:user2', 'create:user1', 'create:user4' ])
+			expect( ids( snapshot )).toEqual([ 'user2', 'user1', 'user4' ])
+		})
+
+		it( 'A write that pushes a document out of a limited window is reported as a delete change. [REQ-8]', async ()=>{
+			const listener = await listenToSeededCollection( model.find().orderBy( 'age', 'asc' ).limit( 3 ))
+
+			await changeAge( 'user2', 100 )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'delete', 'user2' ))
+			expect( changes.filter( change => change.type === 'delete' ).map( change => change.after?.id )).toEqual([ 'user2' ])
+			expect( ids( snapshot )).toEqual([ 'user1', 'user4', 'user6' ])
+		})
+
+		it( 'A document deleted inside a transaction is reported as a delete change. [REQ-9]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+
+			await model.runTransaction( async handle => {
+				const user6 = await handle.findById( 'user6' )
+				await handle.delete( user6! )
+				return user6!
+			})
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'delete', 'user6' ))
+			expect( changes ).toHaveLength( 1 )
+			expect( ids( snapshot )).not.toContain( 'user6' )
+		})
+
+		it( 'An unsubscribed listener is not notified by later writes. [REQ-10]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+			unsubscribe!()
+			unsubscribe = undefined
+
+			await model.save( newUser( 'user7', 30 ) )
+			await model.delete( 'user3' )
+
+			await expectQuiet( listener )
+		})
+
+		it( 'Every reported change uses the core vocabulary and names its collection. [REQ-11]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+			const user7 = newUser( 'user7', 30 )
+
+			await model.save( user7 )
+			await awaitNotification( listener, isChange( 'create', 'user7' ))
+
+			user7.age = 31
+			await model.save( user7 )
+			await awaitNotification( listener, isChange( 'update', 'user7' ))
+
+			await model.delete( 'user7' )
+			await awaitNotification( listener, isChange( 'delete', 'user7' ))
+
+			const reportedChanges = listener.mock.calls.flatMap(([ changes ])=> changes ) as DocumentChange<TestUser>[]
+			expect( reportedChanges.map( change => change.type )).toEqual([ 'create', 'update', 'delete' ])
+			reportedChanges.forEach( change => {
+				expect( change.collectionPath ).toBe( 'TestUser' )
+				expect( change.before ).toBeUndefined()
+			})
+		})
+
+		it( 'A query matching no documents notifies once with an empty result. [REQ-12]', async ()=>{
+			const listener = listenToCollection( model.find().where( 'age', '>=', 200 ))
+
+			await awaitFirstNotification( listener )
+			await expectOnlyOne( listener )
+
+			const [ changes, snapshot ] = listener.mock.calls[ 0 ] as [ DocumentChange<TestUser>[], TestUser[] ]
+			expect( changes ).toEqual( [] )
+			expect( snapshot ).toEqual( [] )
+		})
+
+		it( 'The documents delivered to a model listener are model instances. [REQ-13]', async ()=>{
+			const listener = await listenToSeededCollection( model.find() )
+
+			await model.save( newUser( 'user7', 30 ) )
+
+			const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'create', 'user7' ))
+			expect( changes[ 0 ]?.after ).toBeInstanceOf( TestUser )
+			expect( snapshot ).toHaveLength( 7 )
+			expect( snapshot.every( document => document instanceof TestUser )).toBe( true )
+		})
+
+		it( 'Subscribing to an existing document reports an update with the document. [REQ-14]', async ()=>{
+			const listener = listenToDocument( 'user1' )
+
+			await awaitFirstNotification( listener )
+			await expectOnlyOne( listener )
+
+			expect( listener ).toHaveBeenCalledWith({
+				type: 'update',
+				before: undefined,
+				after: expect.objectContaining({ id: 'user1' }),
+				params: expect.objectContaining({ exists: true }),
+				collectionPath: 'TestUser',
+			})
+		})
+
+		it( 'Subscribing to a missing document stays silent until it is created. [REQ-15]', async ()=>{
+			const listener = listenToDocument( 'user7' )
+
+			await expectQuiet( listener )
+
+			await model.save( newUser( 'user7', 30 ) )
+
+			const reported = await awaitDocumentNotification( listener, change => change.after?.id === 'user7' )
+			expect( reported ).toEqual( expect.objectContaining({
+				type: 'update',
+				after: expect.objectContaining({ id: 'user7' }),
+				params: expect.objectContaining({ exists: true }),
+			}) )
+			await expectOnlyOne( listener )
+		})
+
+		it( 'Changing the observed document is reported as an update. [REQ-16]', async ()=>{
+			const listener = await listenToSeededDocument( 'user6' )
+
+			await changeAge( 'user6', 77 )
+
+			const reported = await awaitDocumentNotification( listener, change => change.after?.age === 77 )
+			expect( reported ).toEqual( expect.objectContaining({
+				type: 'update',
+				after: expect.objectContaining({ id: 'user6', age: 77 }),
+				params: expect.objectContaining({ exists: true }),
+			}) )
+			await expectOnlyOne( listener )
+		})
+
+		it( 'Deleting the observed document is reported as a delete. [REQ-17]', async ()=>{
+			const listener = await listenToSeededDocument( 'user6' )
 
 			await model.delete( 'user6' )
 
-			await vi.waitFor(()=>{
-				const deleteCall = listener.mock.calls.find(([ changes ])=> changes.some(( c: DocumentChange<TestUser> )=> c.type === 'delete' && c.after?.id === 'user6' ))
-				expect( deleteCall ).toBeDefined()
-				const snapshot = deleteCall![ 1 ] as TestUser[]
-				expect( snapshot.some( user => user.id === 'user6' )).toBe( false )
-			}, { timeout: 5000 })
-		})
-
-		it( 'should not emit for a not-yet-created document and emit update once created', async ()=>{
-			const listener = vi.fn()
-			const newUser = new TestUser( 'neverCreatedId' )
-			newUser.name = { firstName: 'Never', lastName: 'Created' }
-
-			unsubscribe = model.onDocumentChange( 'neverCreatedId', listener )
-			await new Promise( resolve => setTimeout( resolve, 800 ) )
-			expect( listener ).not.toHaveBeenCalled()
-
-			await model.save( newUser )
-
-			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
-				type: 'update',
-				after: expect.objectContaining({ id: 'neverCreatedId' }),
-				params: expect.objectContaining({ exists: true }),
-			})), { timeout: 5000 })
-		})
-
-		it( 'should emit delete type and existence state when a document is deleted', async ()=>{
-			const listener = vi.fn()
-			const loadedUser = await model.findById( 'user6' )
-
-			unsubscribe = model.onDocumentChange( 'user6', listener )
-			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
-				type: 'update',
-				params: expect.objectContaining({ exists: true }),
-			})), { timeout: 5000 } )
-			listener.mockClear()
-
-			await model.delete( loadedUser!.id )
-
-			await vi.waitFor(()=> expect( listener ).toHaveBeenCalledWith( expect.objectContaining({
+			const reported = await awaitDocumentNotification( listener, change => change.type === 'delete' )
+			expect( reported ).toEqual( expect.objectContaining({
 				type: 'delete',
 				after: undefined,
+				before: undefined,
 				params: expect.objectContaining({ exists: false }),
-			})), { timeout: 5000 })
+			}) )
+			await expectOnlyOne( listener )
+		})
+
+		it( 'An unsubscribed document listener is not notified by later writes. [REQ-18]', async ()=>{
+			const listener = await listenToSeededDocument( 'user6' )
+			unsubscribe!()
+			unsubscribe = undefined
+
+			await changeAge( 'user6', 77 )
+			await model.delete( 'user6' )
+
+			await expectQuiet( listener )
+		})
+
+		it( 'A document change delivered to a model listener carries a model instance. [REQ-19]', async ()=>{
+			const listener = await listenToSeededDocument( 'user6' )
+
+			await changeAge( 'user6', 77 )
+
+			const reported = await awaitDocumentNotification( listener, change => change.after?.age === 77 )
+			expect( reported.type ).toBe( 'update' )
+			expect( reported.after ).toBeInstanceOf( TestUser )
+			await expectOnlyOne( listener )
+		})
+
+		describe( 'Listener edge cases', ()=>{
+			it( 'reports an update inside a limited window without dropping the document from the snapshot', async ()=>{
+				const listener = await listenToSeededCollection( model.find().orderBy( 'age', 'asc' ).limit( 3 ))
+
+				await changeAge( 'user4', 36 )
+
+				const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'update', 'user4' ))
+				expect( changes.filter( isChange( 'delete', 'user4' ))).toHaveLength( 0 )
+				expect( ids( snapshot )).toEqual([ 'user2', 'user1', 'user4' ])
+			})
+
+			it( 'reports the documents entering and leaving a limited window in the same notification', async ()=>{
+				const listener = await listenToSeededCollection( model.find().orderBy( 'age', 'asc' ).limit( 3 ))
+
+				await model.save( newUser( 'user7', 18 ) )
+
+				const [ changes, snapshot ] = await awaitNotification( listener, isChange( 'create', 'user7' ))
+				expect( changes.filter( change => change.type === 'create' ).map( change => change.after?.id )).toEqual([ 'user7' ])
+				expect( changes.filter( change => change.type === 'delete' ).map( change => change.after?.id )).toEqual([ 'user4' ])
+				expect( ids( snapshot )).toEqual([ 'user7', 'user2', 'user1' ])
+			})
 		})
 	})
-
 })
 

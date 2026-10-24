@@ -196,8 +196,20 @@ export class FirebaseAdminDatasource extends DataSource {
 		return collectionList
 	}
 	
+	/**
+	 * Subscribes to changes of a query result set.
+	 * The listener receives the delta changes as first argument and the
+	 * full current query result — the snapshot — as second argument, reflecting
+	 * the result set after the changes have been applied. A document leaving the
+	 * result set is reported with type 'delete'. The `before` property of every
+	 * change is always undefined: Firestore snapshots carry no previous state.
+	 * The query limit is the observed window: only the documents the query
+	 * matches are watched and reported. A zero or absent limit observes every
+	 * match.
+	 */
 	override onCollectionChange( query: QueryObject<DocumentObject>, collectionName: string, listener: CollectionChangeListener<DocumentObject> ): Unsubscriber {
-		const firebaseQuery = this.queryObjectToFirebaseQuery( query, collectionName )
+		const baseQuery = this.queryObjectToFirebaseQuery( query, collectionName )
+		const firebaseQuery = query.limit ? baseQuery.limit( query.limit ) : baseQuery
 
 		return firebaseQuery.onSnapshot( snapshot => {
 			const changes = snapshot.docChanges().map( change => this.toCollectionDocumentChange( change, collectionName ) )
@@ -205,6 +217,14 @@ export class FirebaseAdminDatasource extends DataSource {
 		})
 	}
 
+	/**
+	 * Subscribes to changes of a single document.
+	 * `after` holds the current document data and is undefined once the document
+	 * has been deleted; `before` is always undefined because Firestore snapshots
+	 * carry no previous state. Deletions are reported with type 'delete' and
+	 * `params.exists` false. A document that does not exist yet stays silent until
+	 * it exists.
+	 */
 	override onDocumentChange( documentPath: string, documentId: string, listener: DocumentChangeListener<DocumentObject> ): Unsubscriber {
 		const db = FirebaseAdminHelper.instance.firestore()
 		let previousExists: boolean | undefined

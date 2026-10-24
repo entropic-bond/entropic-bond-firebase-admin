@@ -79,7 +79,8 @@ sequenceDiagram
 - **Locality**: all `startAfter`/`limit` arithmetic lives in one cursor class.
 - **Depth**: `next( limit? )` hides the base query, page size and last snapshot.
 - **Interface as test surface**: tests cross the same `Model` seam consumer use.
-- **Minimum change**: `count()` and `onCollectionChange()` keep their paths.
+- **Minimum change**: `count()` and `onCollectionChange()` keep their query building paths (the
+listener's own limit/window is gh-issue-1's, see below).
 
 ## Strengths and weaknesses
 
@@ -91,10 +92,15 @@ sequenceDiagram
 - The cursor reuses the parent `QueryCursor` type but ignores its in-memory
   `docs`/`position`; those fields stay empty by construction.
 - `queryObjectToFirebaseQuery()` no longer applies `queryObject.limit`, so
-  `count()` counts every match and `onCollectionChange()` observes the whole
-  collection even when a limit is set. This is the intended behaviour: the page
-  size belongs to the cursor, not to the aggregate/live-query paths. No test
-  relied on the previous limited behaviour.
+  `count()` counts every match and `find()` hands the limit to the cursor as its
+  page size. This is the intended behaviour: the page size belongs to the
+  cursor, not to the aggregate path. No test relied on the previous limited
+  behaviour.
+- `onCollectionChange()` does apply the limit to the watched query: for a live
+  listener the limit is the observed *window*, not a page. That decision belongs
+  to gh-issue-1 and is recorded in
+  `specs/gh-issue-1/change-snapshot-design.md` (REQ-7, REQ-8); it leaves this
+  issue's cursor semantics untouched.
 
 ## Audit note (code-auditor)
 
